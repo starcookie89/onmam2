@@ -3,7 +3,7 @@
   "short_name": "2공동체 기도",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#6b46c1",
+  "background_color": "#000000",
   "theme_color": "#6b46c1",
   "description": "온맘2공동체 기도제목 모음",
   "lang": "ko",
