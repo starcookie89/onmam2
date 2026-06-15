@@ -3,20 +3,34 @@
   "short_name": "2공동체 기도",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#000000",
+  "background_color": "#6b46c1",
   "theme_color": "#6b46c1",
+  "description": "온맘2공동체 기도제목 모음",
+  "lang": "ko",
   "icons": [
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
