@@ -383,7 +383,7 @@
 <div class="container">
   <header>
     <h1>🙏 2공동체 기도제목</h1>
-    <button id="headerInstallBtn" class="hidden">📲 홈 화면에 추가</button>
+    <button id="headerInstallBtn">📲 홈 화면에 추가</button>
   </header>
 
   <div class="sync-status" id="syncStatus">
@@ -692,10 +692,13 @@ async function triggerInstall() {
     deferredPrompt.prompt();
     await deferredPrompt.userChoice;
     deferredPrompt = null;
-    headerInstallBtn.classList.add('hidden');
     installBanner.classList.remove('show');
   } else if (isIOS()) {
     installMsg.textContent = 'iOS: 하단 공유 버튼 → "홈 화면에 추가"를 눌러주세요.';
+    installBtn.style.display = 'none';
+    installBanner.classList.add('show');
+  } else {
+    installMsg.textContent = 'Chrome 주소창 오른쪽 설치(⊕) 아이콘을 눌러 추가하세요.';
     installBtn.style.display = 'none';
     installBanner.classList.add('show');
   }
@@ -714,9 +717,14 @@ window.addEventListener('beforeinstallprompt', (e) => {
 installBtn.onclick = triggerInstall;
 installCloseBtn.onclick = () => installBanner.classList.remove('show');
 
-// iOS: show header button always (not standalone)
-if (isIOS() && !isStandalone) {
-  headerInstallBtn.classList.remove('hidden');
+// 이미 앱으로 실행 중이면 버튼 숨김
+if (isStandalone) {
+  headerInstallBtn.style.display = 'none';
+}
+
+// 서비스 워커 등록 (beforeinstallprompt 발생 조건)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
 }
 </script>
 </body>
