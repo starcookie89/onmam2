@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="2공동체 기도">
+<meta name="theme-color" content="#000000">
+<title>2공동체 기도제목</title>
+
+<!-- PWA manifest (inline via data URI) -->
+<link rel="manifest" id="manifestLink">
+<link rel="apple-touch-icon" id="appleIcon">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    background: linear-gradient(135deg, #f5f0ff 0%, #fff8f0 100%);
+    min-height: 100vh;
+    color: #3a3a3a;
+    overscroll-behavior-y: contain;
+  }
+  body.loading { overflow: hidden; }
+
+  /* Splash screen */
+  #splash {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.9s ease, visibility 0.9s ease;
+  }
+  #splash.hide {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  #splash .gold {
+    font-size: 2.6rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    background: linear-gradient(135deg, #ffd700, #f5b400, #ffe28a);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    opacity: 0;
+    animation: fadeUp 1.2s ease forwards;
+    animation-delay: 0.3s;
+    text-align: center;
+  }
+  #splash .white {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #fff;
+    margin-top: 14px;
+    opacity: 0;
+    animation: fadeUp 1.2s ease forwards;
+    animation-delay: 1.3s;
+    letter-spacing: 0.5em;
+    text-align: center;
+  }
+  #splash .spinner {
+    margin-top: 30px;
+    width: 22px;
+    height: 22px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: #f5b400;
+    border-radius: 50%;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards, spin 1s linear infinite;
+    animation-delay: 2.2s, 2.2s;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 20px; padding-bottom: 60px; }
+  header {
+    text-align: center;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, #6b46c1, #9333ea);
+    color: white;
+    border-radius: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(107,70,193,0.25);
+  }
+  header h1 { font-size: 1.7rem; }
+
+  .sync-status {
+    text-align: center;
+    font-size: 0.78rem;
+    color: #999;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .sync-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ccc;
+  }
+  .sync-dot.online { background: #34d399; }
+  .sync-dot.syncing {
+    background: #f5b400;
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; } 50% { opacity: 0.3; }
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+  }
+  .tab-btn {
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 50%;
+    background: white;
+    color: #6b46c1;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    transition: background 0.2s, color 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex: 0 0 auto;
+  }
+  .tab-btn:hover { transform: translateY(-1px); }
+  .tab-btn.active {
+    background: #6b46c1;
+    color: white;
+  }
+  .tab-btn.filled:not(.active)::after {
+    content: '';
+    position: absolute;
+    bottom: 3px;
+    right: 3px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #34d399;
+  }
+  .tab-btn.all-tab {
+    background: #fff8e6;
+    color: #c08a00;
+    border: 1px solid #ffe2a3;
+    width: auto;
+    border-radius: 24px;
+    padding: 0 18px;
+    font-size: 0.85rem;
+  }
+  .tab-btn.all-tab.active {
+    background: #f5b400;
+    color: white;
+  }
+
+  /* Write panel */
+  .panel {
+    background: white;
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    display: none;
+  }
+  .panel.active { display: block; }
+  .panel h2 {
+    color: #6b46c1;
+    margin-bottom: 14px;
+    font-size: 1.2rem;
+  }
+  .panel textarea {
+    width: 100%;
+    min-height: 220px;
+    resize: vertical;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 1rem;
+    line-height: 1.7;
+    font-family: inherit;
+  }
+  .panel textarea:focus {
+    outline: 2px solid #c4b5fd;
+    border-color: #a78bfa;
+  }
+  .panel .meta {
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: #999;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .panel .actions {
+    margin-top: 14px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  .btn {
+    background: #6b46c1;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    border-radius: 10px;
+    padding: 10px 20px;
+    transition: background 0.2s;
+  }
+  .btn:hover { background: #553399; }
+  .btn:disabled { background: #ccc; cursor: default; }
+
+  .save-msg {
+    font-size: 0.85rem;
+    color: #0c8c6e;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .save-msg.show { opacity: 1; }
+
+  /* All view fullscreen mode */
+  #allView {
+    display: none;
+  }
+  #allView.active {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #f5f0ff 0%, #fff8f0 100%);
+    z-index: 100;
+    overflow-y: auto;
+    padding: 24px;
+    padding-bottom: 60px;
+  }
+  #allView .all-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1100px;
+    margin: 0 auto 20px;
+  }
+  #allView .all-header h2 {
+    color: #6b46c1;
+    font-size: 1.4rem;
+  }
+  #allView .close-btn {
+    background: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    color: #6b46c1;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .all-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    align-items: start;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .all-card {
+    background: white;
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    border-top: 4px solid #d8c9f5;
+  }
+  .all-card.filled { border-top-color: #6b46c1; }
+  .all-card h3 {
+    color: #4a3a7a;
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+  .all-card .content {
+    white-space: pre-wrap;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #444;
+    min-height: 50px;
+  }
+  .all-card .content.empty {
+    color: #bbb;
+    font-style: italic;
+  }
+  .all-card .updated {
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: #999;
+  }
+
+  /* Install banner */
+  #installBanner {
+    position: fixed;
+    bottom: 14px;
+    left: 14px;
+    right: 14px;
+    max-width: 500px;
+    margin: 0 auto;
+    background: #6b46c1;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 14px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    z-index: 200;
+    font-size: 0.85rem;
+  }
+  #installBanner.show { display: flex; }
+  #installBanner button {
+    background: white;
+    color: #6b46c1;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  #installBanner .close-x {
+    background: transparent;
+    color: white;
+    font-size: 1rem;
+    padding: 4px;
+  }
+  #installBanner .msg { flex: 1; line-height: 1.4; }
+</style>
+</head>
+<body class="loading">
+
+<div id="splash">
+  <div class="gold">Scars into STARS</div>
+  <div class="white">온맘2공</div>
+  <div class="spinner"></div>
+</div>
+
+<div class="container">
+  <header>
+    <h1>🙏 2공동체 기도제목</h1>
+  </header>
+
+  <div class="sync-status" id="syncStatus">
+    <span class="sync-dot" id="syncDot"></span>
+    <span id="syncText">연결 중...</span>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div id="panels"></div>
+
+</div>
+
+<div id="allView">
+  <div class="all-header">
+    <h2>2공동체 전체 기도제목</h2>
+    <button class="close-btn" id="closeAllBtn">✕</button>
+  </div>
+  <div class="all-grid" id="allGrid"></div>
+</div>
+
+<div id="installBanner">
+  <span class="msg" id="installMsg">홈 화면에 추가하면 앱처럼 빠르게 열 수 있어요.</span>
+  <button id="installBtn">추가하기</button>
+  <button class="close-x" id="installCloseBtn">✕</button>
+</div>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+<script>
+/* =========================================================
+   Firebase 설정
+   ⚠️ Firebase 콘솔에서 만든 프로젝트의 설정값으로 교체해주세요.
+   (GA Speaking / GA Voca와 같은 프로젝트를 재사용해도 되고,
+    새 프로젝트를 만들어도 됩니다. 컬렉션명은 "comm2_"로 분리되어
+    다른 앱과 충돌하지 않습니다.)
+========================================================= */
+const FB_CONFIG = {
+  apiKey: "AIzaSyBynd7E2ZsIq0DErN7XH3aBP6KYr4VKapM",
+  authDomain: "onmam2-c8fa3.firebaseapp.com",
+  projectId: "onmam2-c8fa3",
+  storageBucket: "onmam2-c8fa3.firebasestorage.app",
+  messagingSenderId: "865257671140",
+  appId: "1:865257671140:web:a25f718881c64673eedff1"
+};
+const COLLECTION = "comm2_prayers"; // 문서ID: "1" ~ "14"
+
+let db = null;
+let fbReady = false;
+
+function waitFirebase(cb, tries) {
+  tries = tries || 0;
+  if (typeof firebase !== 'undefined' && firebase.firestore) { cb(); }
+  else if (tries < 30) { setTimeout(() => waitFirebase(cb, tries + 1), 150); }
+  else {
+    setSyncStatus('offline', '오프라인 모드 (이 기기에만 저장)');
+  }
+}
+
+const NUM_GROUPS = 14;
+let groupIds = [];
+for (let i = 1; i <= NUM_GROUPS; i++) groupIds.push(String(i));
+
+// In-memory data store
+let prayerData = {};
+groupIds.forEach(id => { prayerData[id] = { text: '', updatedAt: '' }; });
+
+const tabsEl = document.getElementById('tabs');
+const panelsEl = document.getElementById('panels');
+
+/* ---------- Sync status UI ---------- */
+function setSyncStatus(state, text) {
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncText');
+  dot.className = 'sync-dot ' + state;
+  txt.textContent = text;
+}
+
+/* ---------- Build tabs ---------- */
+groupIds.forEach((id, idx) => {
+  const btn = document.createElement('button');
+  btn.className = 'tab-btn';
+  btn.textContent = (idx + 1);
+  btn.dataset.target = id;
+  btn.onclick = () => switchTab(id);
+  tabsEl.appendChild(btn);
+});
+
+const allBtn = document.createElement('button');
+allBtn.className = 'tab-btn all-tab';
+allBtn.textContent = '전체보기';
+allBtn.dataset.target = 'all';
+allBtn.onclick = () => openAllView();
+tabsEl.appendChild(allBtn);
+
+/* ---------- Build write panels ---------- */
+groupIds.forEach(id => {
+  const panel = document.createElement('div');
+  panel.className = 'panel';
+  panel.dataset.panel = id;
+
+  panel.innerHTML = `
+    <h2>${id}번 순모임 기도제목</h2>
+    <textarea placeholder="${id}번 순모임의 기도제목을 자유롭게 작성해주세요.\n\n(여러 개일 경우 줄을 나눠 적어주세요)"></textarea>
+    <div class="meta">
+      <span class="save-msg">저장되었습니다 ✓</span>
+      <span class="updated-label"></span>
+    </div>
+    <div class="actions">
+      <button class="btn save-btn">저장하기</button>
+    </div>
+  `;
+
+  const textarea = panel.querySelector('textarea');
+  const saveBtn = panel.querySelector('.save-btn');
+  const saveMsg = panel.querySelector('.save-msg');
+  const updatedLabel = panel.querySelector('.updated-label');
+
+  saveBtn.onclick = () => savePrayer(id, textarea.value, saveMsg, updatedLabel);
+
+  panelsEl.appendChild(panel);
+});
+
+/* ---------- Save (Firestore + local) ---------- */
+function nowStr() {
+  const now = new Date();
+  return (now.getMonth()+1) + '/' + now.getDate() + ' ' +
+         String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+}
+
+async function savePrayer(id, text, saveMsg, updatedLabel) {
+  const trimmed = text.trim();
+  const dateStr = nowStr();
+  prayerData[id] = { text: trimmed, updatedAt: dateStr };
+  updatedLabel.textContent = '마지막 저장: ' + dateStr;
+  updateTabIndicator(id);
+
+  if (db) {
+    setSyncStatus('syncing', '저장 중...');
+    try {
+      await db.collection(COLLECTION).doc(id).set({
+        text: trimmed,
+        updatedAt: dateStr,
+        updatedAtServer: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      setSyncStatus('online', '실시간 동기화 중');
+    } catch (e) {
+      setSyncStatus('offline', '저장 실패 - 인터넷 확인 필요');
+    }
+  }
+  saveMsg.classList.add('show');
+  setTimeout(() => saveMsg.classList.remove('show'), 1800);
+}
+
+function updateTabIndicator(id) {
+  const btn = tabsEl.querySelector('.tab-btn[data-target="' + id + '"]');
+  if (prayerData[id].text) btn.classList.add('filled');
+  else btn.classList.remove('filled');
+}
+
+/* ---------- Real-time listener: keep all 14 in sync ---------- */
+function attachRealtimeListener() {
+  groupIds.forEach(id => {
+    db.collection(COLLECTION).doc(id).onSnapshot(doc => {
+      if (doc.exists) {
+        const d = doc.data();
+        prayerData[id] = { text: d.text || '', updatedAt: d.updatedAt || '' };
+        updateTabIndicator(id);
+
+        // If this panel is currently inactive (not being edited), refresh textarea
+        const panel = panelsEl.querySelector('.panel[data-panel="' + id + '"]');
+        const textarea = panel.querySelector('textarea');
+        const updatedLabel = panel.querySelector('.updated-label');
+        if (document.activeElement !== textarea) {
+          textarea.value = prayerData[id].text;
+        }
+        updatedLabel.textContent = prayerData[id].updatedAt ? '마지막 저장: ' + prayerData[id].updatedAt : '';
+
+        if (allView.classList.contains('active')) renderAll();
+      }
+    }, err => {
+      setSyncStatus('offline', '동기화 오류');
+    });
+  });
+}
+
+/* ---------- All view ---------- */
+const allView = document.getElementById('allView');
+document.getElementById('closeAllBtn').onclick = () => closeAllView();
+
+function openAllView() {
+  renderAll();
+  allView.classList.add('active');
+}
+function closeAllView() {
+  allView.classList.remove('active');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+}
+
+function renderAll() {
+  const grid = document.getElementById('allGrid');
+  grid.innerHTML = '';
+  groupIds.forEach(id => {
+    const data = prayerData[id];
+    const card = document.createElement('div');
+    card.className = 'all-card' + (data.text ? ' filled' : '');
+    card.innerHTML = `
+      <h3>${id}번 순모임</h3>
+      <div class="content ${data.text ? '' : 'empty'}">${data.text ? escapeHtml(data.text) : '아직 작성된 기도제목이 없습니다.'}</div>
+      ${data.updatedAt ? '<div class="updated">업데이트: ' + data.updatedAt + '</div>' : ''}
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function switchTab(id) {
+  closeAllView();
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.target === id));
+  document.querySelectorAll('.panel').forEach(p => {
+    const active = p.dataset.panel === id;
+    p.classList.toggle('active', active);
+    if (active) {
+      const textarea = p.querySelector('textarea');
+      textarea.value = prayerData[id].text;
+      const updatedLabel = p.querySelector('.updated-label');
+      updatedLabel.textContent = prayerData[id].updatedAt ? '마지막 저장: ' + prayerData[id].updatedAt : '';
+    }
+  });
+}
+
+/* ---------- Init ---------- */
+groupIds.forEach(id => updateTabIndicator(id));
+switchTab(groupIds[0]);
+
+waitFirebase(() => {
+  try {
+    firebase.initializeApp(FB_CONFIG);
+    db = firebase.firestore();
+    setSyncStatus('online', '실시간 동기화 중');
+    attachRealtimeListener();
+  } catch (e) {
+    setSyncStatus('offline', '오프라인 모드 (이 기기에만 저장)');
+  }
+});
+
+/* ---------- Splash ---------- */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('splash').classList.add('hide');
+    document.body.classList.remove('loading');
+  }, 3200);
+});
+
+/* =========================================================
+   PWA: 홈 화면에 추가
+========================================================= */
+// Manifest (data URI, self-contained — no extra file needed)
+const manifest = {
+  name: "2공동체 기도제목",
+  short_name: "2공동체 기도",
+  start_url: ".",
+  display: "standalone",
+  background_color: "#000000",
+  theme_color: "#000000",
+  icons: [
+    {
+      src: "data:image/svg+xml," + encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" fill="#000"/><text x="96" y="115" font-size="90" text-anchor="middle" fill="#f5b400" font-family="sans-serif">🙏</text></svg>'
+      ),
+      sizes: "192x192",
+      type: "image/svg+xml"
+    }
+  ]
+};
+const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+document.getElementById('manifestLink').href = URL.createObjectURL(manifestBlob);
+document.getElementById('appleIcon').href =
+  "data:image/svg+xml," + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" fill="#000"/><text x="90" y="110" font-size="85" text-anchor="middle" fill="#f5b400" font-family="sans-serif">🙏</text></svg>'
+  );
+
+// Install prompt (Android/Chrome)
+let deferredPrompt = null;
+const installBanner = document.getElementById('installBanner');
+const installBtn = document.getElementById('installBtn');
+const installCloseBtn = document.getElementById('installCloseBtn');
+const installMsg = document.getElementById('installMsg');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installMsg.textContent = '홈 화면에 추가하면 앱처럼 빠르게 열 수 있어요.';
+  showInstallBanner();
+});
+
+installBtn.onclick = async () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+  }
+  installBanner.classList.remove('show');
+};
+installCloseBtn.onclick = () => installBanner.classList.remove('show');
+
+function showInstallBanner() {
+  setTimeout(() => installBanner.classList.add('show'), 4000);
+}
+
+// iOS Safari: beforeinstallprompt not supported -> show manual instructions
+function isIOS() {
+  return /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+if (isIOS() && !isStandalone) {
+  installMsg.textContent = 'iOS: 하단 공유 버튼 → "홈 화면에 추가"를 눌러주세요.';
+  installBtn.style.display = 'none';
+  showInstallBanner();
+}
+</script>
+</body>
+</html>
