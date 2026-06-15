@@ -86,14 +86,30 @@
   .container { max-width: 900px; margin: 0 auto; padding: 20px; padding-bottom: 60px; }
   header {
     text-align: center;
-    padding: 30px 20px;
+    padding: 24px 20px 20px;
     background: linear-gradient(135deg, #6b46c1, #9333ea);
     color: white;
     border-radius: 16px;
     margin-bottom: 20px;
     box-shadow: 0 4px 20px rgba(107,70,193,0.25);
   }
-  header h1 { font-size: 1.7rem; }
+  header h1 { font-size: 1.7rem; margin-bottom: 14px; }
+  #headerInstallBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border: 1.5px solid rgba(255,255,255,0.5);
+    border-radius: 20px;
+    padding: 7px 16px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  #headerInstallBtn:hover { background: rgba(255,255,255,0.3); }
+  #headerInstallBtn.hidden { display: none; }
 
   .sync-status {
     text-align: center;
@@ -367,6 +383,7 @@
 <div class="container">
   <header>
     <h1>🙏 2공동체 기도제목</h1>
+    <button id="headerInstallBtn" class="hidden">📲 홈 화면에 추가</button>
   </header>
 
   <div class="sync-status" id="syncStatus">
@@ -662,38 +679,44 @@ const installBanner = document.getElementById('installBanner');
 const installBtn = document.getElementById('installBtn');
 const installCloseBtn = document.getElementById('installCloseBtn');
 const installMsg = document.getElementById('installMsg');
+const headerInstallBtn = document.getElementById('headerInstallBtn');
 
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  installMsg.textContent = '홈 화면에 추가하면 앱처럼 빠르게 열 수 있어요.';
-  showInstallBanner();
-});
-
-installBtn.onclick = async () => {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt = null;
-  }
-  installBanner.classList.remove('show');
-};
-installCloseBtn.onclick = () => installBanner.classList.remove('show');
-
-function showInstallBanner() {
-  setTimeout(() => installBanner.classList.add('show'), 4000);
-}
-
-// iOS Safari: beforeinstallprompt not supported -> show manual instructions
 function isIOS() {
   return /iphone|ipad|ipod/i.test(navigator.userAgent) ||
          (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+async function triggerInstall() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    headerInstallBtn.classList.add('hidden');
+    installBanner.classList.remove('show');
+  } else if (isIOS()) {
+    installMsg.textContent = 'iOS: 하단 공유 버튼 → "홈 화면에 추가"를 눌러주세요.';
+    installBtn.style.display = 'none';
+    installBanner.classList.add('show');
+  }
+}
+
+headerInstallBtn.onclick = triggerInstall;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  headerInstallBtn.classList.remove('hidden');
+  installMsg.textContent = '홈 화면에 추가하면 앱처럼 빠르게 열 수 있어요.';
+  setTimeout(() => installBanner.classList.add('show'), 4000);
+});
+
+installBtn.onclick = triggerInstall;
+installCloseBtn.onclick = () => installBanner.classList.remove('show');
+
+// iOS: show header button always (not standalone)
 if (isIOS() && !isStandalone) {
-  installMsg.textContent = 'iOS: 하단 공유 버튼 → "홈 화면에 추가"를 눌러주세요.';
-  installBtn.style.display = 'none';
-  showInstallBanner();
+  headerInstallBtn.classList.remove('hidden');
 }
 </script>
 </body>
