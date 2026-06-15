@@ -593,7 +593,7 @@ function renderAll() {
     const card = document.createElement('div');
     card.className = 'all-card' + (data.text ? ' filled' : '');
     card.innerHTML = `
-      <h3>${id}번 순모임</h3>
+      <h3>${id}사랑방 기도제목</h3>
       <div class="content ${data.text ? '' : 'empty'}">${data.text ? escapeHtml(data.text) : '아직 작성된 기도제목이 없습니다.'}</div>
       ${data.updatedAt ? '<div class="updated">업데이트: ' + data.updatedAt + '</div>' : ''}
     `;
