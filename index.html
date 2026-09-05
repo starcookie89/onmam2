@@ -14,6 +14,12 @@
 <link rel="apple-touch-icon" href="/icon-192.png">
 
 <style>
+  :root {
+    --primary: #6b46c1;
+    --primary-light: #9333ea;
+    --primary-dark: #553399;
+    --accent: #f5b400;
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; -webkit-tap-highlight-color: transparent; }
   html, body {
     background: linear-gradient(135deg, #f5f0ff 0%, #fff8f0 100%);
@@ -90,7 +96,7 @@
   header {
     text-align: center;
     padding: 24px 20px 20px;
-    background: linear-gradient(135deg, #6b46c1, #9333ea);
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
     color: white;
     border-radius: 16px;
     margin-bottom: 20px;
@@ -141,7 +147,7 @@
 
   /* 사랑방 선택 화면 */
   #roomSelectScreen {
-    background: linear-gradient(160deg, #3d2b1f 0%, #6b46c1 60%, #9333ea 100%);
+    background: linear-gradient(160deg, #3d2b1f 0%, var(--primary) 60%, var(--primary-light) 100%);
     border-radius: 20px;
     padding: 50px 26px;
     text-align: center;
@@ -193,7 +199,7 @@
   }
   .toolbar-btn {
     background: white;
-    color: #6b46c1;
+    color: var(--primary);
     border: 1px solid #e4d9fb;
     border-radius: 20px;
     padding: 8px 14px;
@@ -204,7 +210,7 @@
   }
   .diary-room-label {
     font-weight: 800;
-    color: #6b46c1;
+    color: var(--primary);
     font-size: 1.05rem;
   }
   .diary-bottom-actions {
@@ -235,7 +241,7 @@
   .cover-title {
     font-size: 1.3rem;
     font-weight: 800;
-    color: #6b46c1;
+    color: var(--primary);
     margin-bottom: 6px;
   }
   .cover-week {
@@ -298,7 +304,7 @@
   .cat-tab-btn {
     border: none;
     background: white;
-    color: #6b46c1;
+    color: var(--primary);
     font-weight: 700;
     font-size: 0.88rem;
     padding: 10px 16px;
@@ -308,7 +314,7 @@
     transition: background 0.2s, color 0.2s;
   }
   .cat-tab-btn.active {
-    background: #6b46c1;
+    background: var(--primary);
     color: white;
   }
 
@@ -327,7 +333,7 @@
     border: none;
     border-radius: 50%;
     background: white;
-    color: #6b46c1;
+    color: var(--primary);
     font-weight: 700;
     font-size: 0.95rem;
     cursor: pointer;
@@ -341,7 +347,7 @@
   }
   .tab-btn:hover { transform: translateY(-1px); }
   .tab-btn.active {
-    background: #6b46c1;
+    background: var(--primary);
     color: white;
   }
   .tab-btn.filled:not(.active)::after {
@@ -376,7 +382,7 @@
   }
   .panel.active { display: block; animation: pageIn 0.35s ease; }
   .panel h2 {
-    color: #6b46c1;
+    color: var(--primary);
     margin-bottom: 14px;
     font-size: 1.2rem;
   }
@@ -423,7 +429,7 @@
     gap: 10px;
   }
   .btn {
-    background: #6b46c1;
+    background: var(--primary);
     color: white;
     border: none;
     cursor: pointer;
@@ -433,7 +439,7 @@
     padding: 10px 20px;
     transition: background 0.2s;
   }
-  .btn:hover { background: #553399; }
+  .btn:hover { background: var(--primary-dark); }
   .btn:disabled { background: #ccc; cursor: default; }
 
   .save-msg {
@@ -466,7 +472,7 @@
     margin: 0 auto 20px;
   }
   #allView .all-header h2 {
-    color: #6b46c1;
+    color: var(--primary);
     font-size: 1.4rem;
   }
   #allView .close-btn {
@@ -476,7 +482,7 @@
     width: 40px;
     height: 40px;
     font-size: 1.2rem;
-    color: #6b46c1;
+    color: var(--primary);
     cursor: pointer;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08);
   }
@@ -495,7 +501,7 @@
     box-shadow: 0 2px 10px rgba(0,0,0,0.06);
     border-top: 4px solid #d8c9f5;
   }
-  .all-card.filled { border-top-color: #6b46c1; }
+  .all-card.filled { border-top-color: var(--primary); }
   .all-card h3 {
     color: #4a3a7a;
     font-size: 1rem;
@@ -519,7 +525,7 @@
   }
   .all-card .bible-book {
     font-weight: 700;
-    color: #6b46c1;
+    color: var(--primary);
     margin-bottom: 6px;
     font-size: 0.95rem;
   }
@@ -532,7 +538,7 @@
     right: 14px;
     max-width: 500px;
     margin: 0 auto;
-    background: #6b46c1;
+    background: var(--primary);
     color: white;
     padding: 12px 16px;
     border-radius: 14px;
@@ -547,7 +553,7 @@
   #installBanner.show { display: flex; }
   #installBanner button {
     background: white;
-    color: #6b46c1;
+    color: var(--primary);
     border: none;
     padding: 8px 14px;
     border-radius: 8px;
@@ -593,7 +599,7 @@
     cursor: pointer;
   }
   #manualInstallContent h3 {
-    color: #6b46c1;
+    color: var(--primary);
     font-size: 1.05rem;
     margin-bottom: 16px;
   }
@@ -641,7 +647,7 @@
     cursor: pointer;
   }
   #adminContent h3 {
-    color: #6b46c1;
+    color: var(--primary);
     font-size: 1.05rem;
     margin-bottom: 16px;
   }
@@ -680,6 +686,32 @@
     display: flex;
     justify-content: flex-end;
   }
+  .admin-section {
+    border-top: 2px solid #f0ebff;
+    padding-top: 18px;
+    margin-top: 18px;
+  }
+  .admin-section:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+  .admin-section h4 {
+    color: var(--primary);
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+  }
+  .admin-section input[type="color"] {
+    width: 100%;
+    height: 40px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 2px;
+    margin-bottom: 10px;
+  }
+  .admin-field-title .del-cat-label {
+    float: right;
+    font-weight: 400;
+    font-size: 0.78rem;
+    color: #c0392b;
+  }
+  .admin-section .btn { width: 100%; margin-top: 6px; }
 </style>
 </head>
 <body class="loading">
@@ -692,7 +724,7 @@
 
 <div class="container">
   <header>
-    <h1>🙏 2공동체 경건생활훈련</h1>
+    <h1 id="appTitle">🙏 2공동체 경건생활훈련</h1>
     <button id="headerInstallBtn">📲 홈 화면에 추가</button>
   </header>
 
@@ -703,8 +735,8 @@
 
   <!-- 사랑방 선택 화면 -->
   <div id="roomSelectScreen">
-    <div class="room-select-title">🙏 2공동체<br>경건생활훈련 다이어리</div>
-    <p class="room-select-sub">본인의 사랑방 번호를 선택해주세요</p>
+    <div class="room-select-title" id="roomTitleText">🙏 2공동체<br>경건생활훈련 다이어리</div>
+    <p class="room-select-sub" id="roomSubText">본인의 사랑방 번호를 선택해주세요</p>
     <select id="roomSelect"></select>
     <button id="roomEnterBtn" class="btn room-enter-btn">다이어리 열기 →</button>
   </div>
@@ -719,10 +751,10 @@
 
     <!-- 다이어리 표지: 주간 신앙점검표 -->
     <div id="diaryCover" class="diary-paper cover-page">
-      <div class="cover-title">📔 이번 주 신앙점검표</div>
+      <div class="cover-title" id="coverTitleText">📔 이번 주 신앙점검표</div>
       <div class="cover-week" id="coverWeekLabel"></div>
       <div class="check-table" id="checkTable"></div>
-      <p class="cover-hint">코람데오의 마음으로 항목을 눌러 O/X를 표시하고,<br>아래 인덱스를 눌러 이번 주 내용을 작성해보세요</p>
+      <p class="cover-hint" id="coverHintText">코람데오의 마음으로 항목을 눌러 O/X를 표시하고,<br>아래 인덱스를 눌러 이번 주 내용을 작성해보세요</p>
     </div>
 
     <!-- 인덱스 탭 -->
@@ -980,14 +1012,67 @@ setInterval(() => {
 }, 5 * 60 * 1000);
 
 /* ---------- 인덱스 탭(카테고리) ---------- */
-CATEGORIES.forEach(cat => {
-  const btn = document.createElement('button');
-  btn.className = 'cat-tab-btn';
-  btn.textContent = cat.label;
-  btn.dataset.cat = cat.key;
-  btn.onclick = () => showCategoryPage(cat.key);
-  catTabsEl.appendChild(btn);
-});
+function rebuildCatTabs() {
+  catTabsEl.innerHTML = '';
+  CATEGORIES.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-tab-btn';
+    btn.textContent = cat.label;
+    btn.dataset.cat = cat.key;
+    btn.onclick = () => showCategoryPage(cat.key);
+    catTabsEl.appendChild(btn);
+  });
+}
+rebuildCatTabs();
+
+/* 관리자가 인덱스를 추가/삭제/수정하면 전체 목록을 다시 구성 */
+let categoryUnsubs = {};
+function detachCategoryListeners(key) {
+  (categoryUnsubs[key] || []).forEach(fn => { try { fn(); } catch (e) {} });
+  delete categoryUnsubs[key];
+}
+function attachCategoryListeners(cat) {
+  if (!db) return;
+  categoryUnsubs[cat.key] = groupIds.map(id =>
+    db.collection(cat.collection).doc(id).onSnapshot(doc => {
+      if (doc.exists) {
+        const d = doc.data();
+        entryData[cat.key][id] = cat.kind === 'bible'
+          ? { book: d.book || '', note: d.note || '', updatedAt: d.updatedAt || '' }
+          : { text: d.text || '', updatedAt: d.updatedAt || '' };
+        if (id === currentRoomId && cat.key === currentCat) {
+          const panel = panelsEl.querySelector('.panel[data-panel="' + id + '"]');
+          if (panel) refreshPanelFromData(panel, id);
+        }
+        if (allView.classList.contains('active')) renderAll();
+      }
+    }, () => setSyncStatus('offline', '동기화 오류'))
+  );
+}
+
+function rebuildCategories(list) {
+  Object.keys(categoryUnsubs).forEach(detachCategoryListeners);
+  CATEGORIES.length = 0;
+  list.forEach(c => CATEGORIES.push(c));
+
+  entryData = {};
+  CATEGORIES.forEach(cat => {
+    entryData[cat.key] = {};
+    groupIds.forEach(id => {
+      entryData[cat.key][id] = cat.kind === 'bible' ? { book: '', note: '', updatedAt: '' } : { text: '', updatedAt: '' };
+    });
+    attachCategoryListeners(cat);
+  });
+
+  rebuildCatTabs();
+
+  if (!CATEGORIES.find(c => c.key === currentCat)) {
+    currentCat = CATEGORIES.length ? CATEGORIES[0].key : null;
+  }
+  if (currentRoomId && !document.getElementById('diaryScreen').classList.contains('hidden')) {
+    showCover();
+  }
+}
 
 function showCategoryPage(key) {
   currentCat = key;
@@ -1103,26 +1188,7 @@ function refreshPanelFromData(panel, id) {
 
 /* ---------- Real-time listener: keep all categories x 14 in sync ---------- */
 function attachRealtimeListeners() {
-  CATEGORIES.forEach(cat => {
-    groupIds.forEach(id => {
-      db.collection(cat.collection).doc(id).onSnapshot(doc => {
-        if (doc.exists) {
-          const d = doc.data();
-          entryData[cat.key][id] = cat.kind === 'bible'
-            ? { book: d.book || '', note: d.note || '', updatedAt: d.updatedAt || '' }
-            : { text: d.text || '', updatedAt: d.updatedAt || '' };
-
-          if (id === currentRoomId && cat.key === currentCat) {
-            const panel = panelsEl.querySelector('.panel[data-panel="' + id + '"]');
-            if (panel) refreshPanelFromData(panel, id);
-          }
-          if (allView.classList.contains('active')) renderAll();
-        }
-      }, err => {
-        setSyncStatus('offline', '동기화 오류');
-      });
-    });
-  });
+  CATEGORIES.forEach(attachCategoryListeners);
 
   // 사랑방별 주간 점검표(체크) 실시간 동기화
   groupIds.forEach(id => {
@@ -1134,8 +1200,15 @@ function attachRealtimeListeners() {
     });
   });
 
-  db.collection('comm2_settings').doc('categories').onSnapshot(doc => {
-    if (doc.exists) applySettingsOverrides(doc.data());
+  // 관리자 설정: 색상 테마 / 앱 문구 / 인덱스 목록
+  db.collection('comm2_settings').doc('theme').onSnapshot(doc => {
+    if (doc.exists) applyTheme(doc.data());
+  });
+  db.collection('comm2_settings').doc('appText').onSnapshot(doc => {
+    if (doc.exists) applyAppText(doc.data());
+  });
+  db.collection('comm2_settings').doc('categoryList').onSnapshot(doc => {
+    if (doc.exists && doc.data().list) rebuildCategories(doc.data().list);
   });
 }
 
@@ -1208,61 +1281,196 @@ document.getElementById('adminGearBtn').onclick = () => {
   openAdminPanel();
 };
 
+/* ---------- 색상 테마 ---------- */
+function applyTheme(t) {
+  const root = document.documentElement;
+  if (t.primary) root.style.setProperty('--primary', t.primary);
+  if (t.primaryLight) root.style.setProperty('--primary-light', t.primaryLight);
+  if (t.primaryDark) root.style.setProperty('--primary-dark', t.primaryDark);
+  if (t.accent) root.style.setProperty('--accent', t.accent);
+}
+
+/* ---------- 앱 문구 ---------- */
+function applyAppText(t) {
+  if (t.appTitle) document.getElementById('appTitle').textContent = t.appTitle;
+  if (t.roomTitle) document.getElementById('roomTitleText').innerHTML = t.roomTitle;
+  if (t.roomSub) document.getElementById('roomSubText').textContent = t.roomSub;
+  if (t.coverTitle) document.getElementById('coverTitleText').textContent = t.coverTitle;
+  if (t.coverHint) document.getElementById('coverHintText').innerHTML = t.coverHint;
+}
+
 function openAdminPanel() {
-  adminContent.innerHTML = '<h3>⚙️ 카테고리 문구 설정</h3><div id="adminFields"></div><div class="actions"><button class="btn" id="adminSaveBtn">저장하기</button></div>';
-  const fieldsBox = adminContent.querySelector('#adminFields');
+  const rootStyle = getComputedStyle(document.documentElement);
+  const curPrimary = rootStyle.getPropertyValue('--primary').trim() || '#6b46c1';
+  const curAccent = rootStyle.getPropertyValue('--accent').trim() || '#f5b400';
+
+  adminContent.innerHTML = `
+    <h3>⚙️ 관리자 설정</h3>
+
+    <div class="admin-section">
+      <h4>🎨 색상 테마</h4>
+      <label>기본색(포인트 컬러)</label>
+      <input type="color" id="themePrimary" value="${toHex(curPrimary)}">
+      <label>강조색(알림·버튼 등)</label>
+      <input type="color" id="themeAccent" value="${toHex(curAccent)}">
+      <button class="btn" id="saveThemeBtn">테마 저장</button>
+    </div>
+
+    <div class="admin-section">
+      <h4>📝 앱 문구</h4>
+      <label>앱 제목</label>
+      <input type="text" id="txtAppTitle" value="${escapeHtml(document.getElementById('appTitle').textContent)}">
+      <label>사랑방 선택 화면 제목</label>
+      <input type="text" id="txtRoomTitle" value="${escapeHtml(document.getElementById('roomTitleText').textContent)}">
+      <label>사랑방 선택 화면 안내</label>
+      <input type="text" id="txtRoomSub" value="${escapeHtml(document.getElementById('roomSubText').textContent)}">
+      <label>표지 제목</label>
+      <input type="text" id="txtCoverTitle" value="${escapeHtml(document.getElementById('coverTitleText').textContent)}">
+      <label>표지 안내문</label>
+      <input type="text" id="txtCoverHint" value="${escapeHtml(document.getElementById('coverHintText').textContent)}">
+      <button class="btn" id="saveTextBtn">문구 저장</button>
+    </div>
+
+    <div class="admin-section">
+      <h4>📚 인덱스(탭) 관리</h4>
+      <div id="adminCatList"></div>
+      <div class="admin-field-group">
+        <div class="admin-field-title">➕ 새 인덱스 추가</div>
+        <label>탭 이름</label>
+        <input type="text" id="newCatLabel" placeholder="예: 📿 감사일기">
+        <label>안내 문구(제목)</label>
+        <input type="text" id="newCatHeading" placeholder="예: 감사한 일들을 자유롭게 적어주세요">
+        <label>입력창 안내(placeholder)</label>
+        <input type="text" id="newCatPlaceholder" placeholder="예: 이번 주 감사한 일을 적어주세요">
+        <label>유형</label>
+        <select id="newCatKind">
+          <option value="text">일반 글쓰기 (한 칸)</option>
+          <option value="bible">성경읽기형 (짧은 입력 + 메모 두 칸)</option>
+        </select>
+      </div>
+      <button class="btn" id="saveCatBtn">인덱스 설정 저장</button>
+    </div>
+  `;
+
+  const catList = adminContent.querySelector('#adminCatList');
   CATEGORIES.forEach(cat => {
     const wrap = document.createElement('div');
     wrap.className = 'admin-field-group';
+    wrap.dataset.existingKey = cat.key;
     wrap.innerHTML =
-      '<div class="admin-field-title">' + escapeHtml(cat.label) + '</div>' +
+      '<div class="admin-field-title">' + escapeHtml(cat.label) +
+      '<label class="del-cat-label"><input type="checkbox" class="del-cat"> 삭제</label></div>' +
       '<label>탭 이름</label>' +
-      '<input type="text" data-key="' + cat.key + '" data-field="label" value="' + escapeHtml(cat.label) + '">' +
+      '<input type="text" data-field="label" value="' + escapeHtml(cat.label) + '">' +
       '<label>안내 문구(제목)</label>' +
-      '<input type="text" data-key="' + cat.key + '" data-field="heading" value="' + escapeHtml(cat.heading) + '">' +
+      '<input type="text" data-field="heading" value="' + escapeHtml(cat.heading) + '">' +
       '<label>입력창 안내(placeholder)</label>' +
-      '<input type="text" data-key="' + cat.key + '" data-field="placeholder" value="' + escapeHtml(cat.placeholder || '') + '">';
-    fieldsBox.appendChild(wrap);
+      '<input type="text" data-field="placeholder" value="' + escapeHtml(cat.placeholder || '') + '">';
+    catList.appendChild(wrap);
   });
-  adminContent.querySelector('#adminSaveBtn').onclick = saveAdminSettings;
+
+  adminContent.querySelector('#saveThemeBtn').onclick = saveTheme;
+  adminContent.querySelector('#saveTextBtn').onclick = saveAppText;
+  adminContent.querySelector('#saveCatBtn').onclick = saveCategoriesSection;
+
   adminModal.classList.add('show');
 }
 
-async function saveAdminSettings() {
-  const inputs = adminContent.querySelectorAll('input[data-key]');
-  const overrides = {};
-  inputs.forEach(inp => {
-    const key = inp.dataset.key, field = inp.dataset.field;
-    overrides[key] = overrides[key] || {};
-    overrides[key][field] = inp.value;
-  });
-  applySettingsOverrides(overrides);
+function toHex(c) {
+  // color input은 hex 값만 허용하므로 rgb() 등으로 반환된 경우 기본값으로 대체
+  return /^#[0-9a-fA-F]{6}$/.test(c) ? c : '#6b46c1';
+}
+
+async function saveTheme() {
+  const t = {
+    primary: adminContent.querySelector('#themePrimary').value,
+    accent: adminContent.querySelector('#themeAccent').value
+  };
+  applyTheme(t);
   if (db) {
     try {
-      await db.collection('comm2_settings').doc('categories').set(overrides, { merge: true });
+      await db.collection('comm2_settings').doc('theme').set(t, { merge: true });
+    } catch (e) {
+      alert('저장 중 오류가 발생했습니다. 인터넷 연결을 확인해주세요.');
+      return;
+    }
+  }
+  alert('테마가 저장되었습니다.');
+}
+
+async function saveAppText() {
+  const t = {
+    appTitle: adminContent.querySelector('#txtAppTitle').value.trim(),
+    roomTitle: adminContent.querySelector('#txtRoomTitle').value.trim(),
+    roomSub: adminContent.querySelector('#txtRoomSub').value.trim(),
+    coverTitle: adminContent.querySelector('#txtCoverTitle').value.trim(),
+    coverHint: adminContent.querySelector('#txtCoverHint').value.trim()
+  };
+  applyAppText(t);
+  if (db) {
+    try {
+      await db.collection('comm2_settings').doc('appText').set(t, { merge: true });
+    } catch (e) {
+      alert('저장 중 오류가 발생했습니다. 인터넷 연결을 확인해주세요.');
+      return;
+    }
+  }
+  alert('문구가 저장되었습니다.');
+}
+
+async function saveCategoriesSection() {
+  const groups = adminContent.querySelectorAll('#adminCatList .admin-field-group');
+  const list = [];
+  groups.forEach(g => {
+    const key = g.dataset.existingKey;
+    const deleted = g.querySelector('.del-cat').checked;
+    if (deleted) return;
+    const cat = catConfig(key);
+    const label = g.querySelector('[data-field="label"]').value.trim() || cat.label;
+    const heading = g.querySelector('[data-field="heading"]').value.trim() || cat.heading;
+    const placeholder = g.querySelector('[data-field="placeholder"]').value.trim() || (cat.placeholder || '');
+    list.push(Object.assign({}, cat, { label, heading, placeholder }));
+  });
+
+  const newLabel = adminContent.querySelector('#newCatLabel').value.trim();
+  if (newLabel) {
+    const newKind = adminContent.querySelector('#newCatKind').value;
+    const newHeading = adminContent.querySelector('#newCatHeading').value.trim() || newLabel;
+    const newPlaceholder = adminContent.querySelector('#newCatPlaceholder').value.trim();
+    const key = 'custom' + Date.now().toString(36);
+    const newCat = {
+      key: key,
+      label: newLabel,
+      collection: 'comm2_' + key,
+      kind: newKind,
+      heading: newHeading,
+      placeholder: newPlaceholder || (newKind === 'bible' ? '예) 본문을 입력하세요' : '자유롭게 작성해주세요'),
+      allTitle: '2공동체 전체 ' + newLabel,
+      cardSuffix: '사랑방 ' + newLabel,
+      emptyMsg: '아직 작성된 내용이 없습니다.'
+    };
+    if (newKind === 'bible') {
+      newCat.notePlaceholder = '나누고 싶은 은혜가 있다면 자유롭게 적어주세요 (선택)';
+    }
+    list.push(newCat);
+  }
+
+  if (list.length === 0) {
+    alert('최소 1개 이상의 인덱스가 필요합니다.');
+    return;
+  }
+
+  rebuildCategories(list);
+  if (db) {
+    try {
+      await db.collection('comm2_settings').doc('categoryList').set({ list: list });
     } catch (e) {
       alert('저장 중 오류가 발생했습니다. 인터넷 연결을 확인해주세요.');
       return;
     }
   }
   adminModal.classList.remove('show');
-  alert('설정이 저장되었습니다.');
-}
-
-function applySettingsOverrides(overrides) {
-  Object.keys(overrides || {}).forEach(key => {
-    const cat = catConfig(key);
-    if (!cat) return;
-    Object.assign(cat, overrides[key]);
-  });
-  document.querySelectorAll('.cat-tab-btn').forEach(b => {
-    const cat = catConfig(b.dataset.cat);
-    if (cat) b.textContent = cat.label;
-  });
-  if (currentRoomId && !panelsEl.classList.contains('hidden')) {
-    renderTabsAndPanels();
-    switchTab(currentRoomId);
-  }
+  alert('인덱스 설정이 저장되었습니다.');
 }
 
 /* ---------- Init ---------- */
