@@ -19,6 +19,7 @@
     --primary-light: #9333ea;
     --primary-dark: #553399;
     --accent: #f5b400;
+    --success: #34d399;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; -webkit-tap-highlight-color: transparent; }
   html, body {
@@ -136,7 +137,7 @@
     border-radius: 50%;
     background: #ccc;
   }
-  .sync-dot.online { background: #34d399; }
+  .sync-dot.online { background: var(--success); }
   .sync-dot.syncing {
     background: #f5b400;
     animation: pulse 1s infinite;
@@ -291,7 +292,7 @@
     font-weight: 800;
     font-size: 0.95rem;
   }
-  .check-badge.o { background: #34d399; color: white; }
+  .check-badge.o { background: var(--success); color: white; }
   .check-badge.x { background: #eee; color: #bbb; }
 
   /* 다이어리 본문 + 오른쪽 인덱스 탭 */
@@ -709,15 +710,62 @@
   .admin-section h4 {
     color: var(--primary);
     font-size: 0.95rem;
-    margin-bottom: 10px;
+    margin-bottom: 4px;
   }
-  .admin-section input[type="color"] {
+  .admin-section .admin-desc {
+    font-size: 0.78rem;
+    color: #999;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .admin-section > label {
+    display: block;
+    font-size: 0.78rem;
+    color: #777;
+    font-weight: 600;
+    margin: 12px 0 5px;
+  }
+  .admin-section > input[type="text"],
+  .admin-section > textarea,
+  .admin-section > select {
+    display: block;
     width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+  .admin-section > textarea { resize: vertical; min-height: 60px; }
+  .color-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+  }
+  .color-field input[type="color"] {
+    width: 48px;
     height: 40px;
     border: 1px solid #ddd;
     border-radius: 8px;
     padding: 2px;
-    margin-bottom: 10px;
+    flex-shrink: 0;
+  }
+  .color-field .color-info { flex: 1; }
+  .color-field .color-info .name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #4a3a7a;
+  }
+  .color-field .color-info .desc {
+    font-size: 0.74rem;
+    color: #999;
+  }
+  .color-field.disabled { opacity: 0.45; }
+  .color-field input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
   }
   .admin-field-title .del-cat-label {
     float: right;
@@ -911,7 +959,7 @@ let currentRoomId = null;
    ⚠️ 별도 로그인 시스템이 없어 클라이언트 코드에 비밀번호가 그대로 노출됩니다.
    보안이 중요하다면 이 값을 주기적으로 변경해주세요. */
 const ADMIN_ROOM_ID = '3'; // 2-3 사랑방으로 입장할 때만 관리자 버튼이 보임
-const ADMIN_PASSWORD = '온맘2공관리';
+const ADMIN_PASSWORD = '103004';
 
 const catTabsEl = document.getElementById('catTabs');
 const panelsEl = document.getElementById('panels');
@@ -1303,12 +1351,21 @@ document.getElementById('adminGearBtn').onclick = () => {
 };
 
 /* ---------- 색상 테마 ---------- */
+const THEME_FIELDS = [
+  { key: 'primary', name: '🟣 기본색', desc: '헤더 배경, 저장 버튼, 선택된 인덱스 탭 등 앱 전반의 메인 컬러' },
+  { key: 'primaryLight', name: '🟪 그라데이션 보조색', desc: '헤더 및 사랑방 선택 화면의 그라데이션 뒷부분 색' },
+  { key: 'primaryDark', name: '🌘 버튼 누를 때 색', desc: '저장 버튼 등을 눌렀을 때(hover) 나타나는 색' },
+  { key: 'accent', name: '🟡 강조색', desc: '동기화 표시등 등 포인트로 쓰이는 색' },
+  { key: 'success', name: '🟢 점검 완료(O) 색', desc: '표지 점검표에서 O로 체크됐을 때 배지 색' }
+];
+function themeVarName(key) {
+  return '--' + key.replace(/([A-Z])/g, '-$1').toLowerCase();
+}
 function applyTheme(t) {
   const root = document.documentElement;
-  if (t.primary) root.style.setProperty('--primary', t.primary);
-  if (t.primaryLight) root.style.setProperty('--primary-light', t.primaryLight);
-  if (t.primaryDark) root.style.setProperty('--primary-dark', t.primaryDark);
-  if (t.accent) root.style.setProperty('--accent', t.accent);
+  Object.keys(t || {}).forEach(key => {
+    if (t[key]) root.style.setProperty(themeVarName(key), t[key]);
+  });
 }
 
 /* ---------- 앱 문구 ---------- */
@@ -1322,38 +1379,42 @@ function applyAppText(t) {
 
 function openAdminPanel() {
   const rootStyle = getComputedStyle(document.documentElement);
-  const curPrimary = rootStyle.getPropertyValue('--primary').trim() || '#6b46c1';
-  const curAccent = rootStyle.getPropertyValue('--accent').trim() || '#f5b400';
 
   adminContent.innerHTML = `
     <h3>⚙️ 관리자 설정</h3>
 
     <div class="admin-section">
       <h4>🎨 색상 테마</h4>
-      <label>기본색(포인트 컬러)</label>
-      <input type="color" id="themePrimary" value="${toHex(curPrimary)}">
-      <label>강조색(알림·버튼 등)</label>
-      <input type="color" id="themeAccent" value="${toHex(curAccent)}">
+      <p class="admin-desc">바꾸고 싶은 항목만 체크한 뒤 색을 고르고 저장하세요. 체크하지 않은 항목은 기존 색 그대로 유지됩니다.</p>
+      <div id="themeFields"></div>
       <button class="btn" id="saveThemeBtn">테마 저장</button>
     </div>
 
     <div class="admin-section">
       <h4>📝 앱 문구</h4>
-      <label>앱 제목</label>
+      <p class="admin-desc">화면에 보이는 안내 문구를 직접 바꿀 수 있어요. 각 항목이 실제로 어디에 보이는지 아래 설명을 참고하세요.</p>
+
+      <label>① 맨 위 헤더에 크게 보이는 앱 제목</label>
       <input type="text" id="txtAppTitle" value="${escapeHtml(document.getElementById('appTitle').textContent)}">
-      <label>사랑방 선택 화면 제목</label>
-      <input type="text" id="txtRoomTitle" value="${escapeHtml(document.getElementById('roomTitleText').textContent)}">
-      <label>사랑방 선택 화면 안내</label>
+
+      <label>② 앱을 처음 열었을 때, 사랑방 선택 화면의 큰 제목 (줄바꿈 가능)</label>
+      <textarea id="txtRoomTitle">${escapeHtml(htmlToText(document.getElementById('roomTitleText').innerHTML))}</textarea>
+
+      <label>③ 사랑방 선택 화면에서 큰 제목 아래에 나오는 작은 안내문</label>
       <input type="text" id="txtRoomSub" value="${escapeHtml(document.getElementById('roomSubText').textContent)}">
-      <label>표지 제목</label>
+
+      <label>④ 사랑방에 들어갔을 때 첫 화면(점검표) 제목</label>
       <input type="text" id="txtCoverTitle" value="${escapeHtml(document.getElementById('coverTitleText').textContent)}">
-      <label>표지 안내문</label>
-      <input type="text" id="txtCoverHint" value="${escapeHtml(document.getElementById('coverHintText').textContent)}">
+
+      <label>⑤ 점검표 아래에 나오는 안내문 (줄바꿈 가능)</label>
+      <textarea id="txtCoverHint">${escapeHtml(htmlToText(document.getElementById('coverHintText').innerHTML))}</textarea>
+
       <button class="btn" id="saveTextBtn">문구 저장</button>
     </div>
 
     <div class="admin-section">
       <h4>📚 인덱스(탭) 관리</h4>
+      <p class="admin-desc">각 인덱스의 이름과 안내 문구를 수정하거나, 삭제 체크 후 저장하면 제거됩니다. 아래에서 새 인덱스도 추가할 수 있어요.</p>
       <div id="adminCatList"></div>
       <div class="admin-field-group">
         <div class="admin-field-title">➕ 새 인덱스 추가</div>
@@ -1372,6 +1433,25 @@ function openAdminPanel() {
       <button class="btn" id="saveCatBtn">인덱스 설정 저장</button>
     </div>
   `;
+
+  const themeBox = adminContent.querySelector('#themeFields');
+  THEME_FIELDS.forEach(f => {
+    const cur = toHex(rootStyle.getPropertyValue(themeVarName(f.key)).trim());
+    const row = document.createElement('div');
+    row.className = 'color-field disabled';
+    row.dataset.key = f.key;
+    row.innerHTML =
+      '<input type="checkbox" class="theme-enable">' +
+      '<input type="color" class="theme-color" value="' + cur + '" disabled>' +
+      '<div class="color-info"><div class="name">' + f.name + '</div><div class="desc">' + f.desc + '</div></div>';
+    const chk = row.querySelector('.theme-enable');
+    const colorInput = row.querySelector('.theme-color');
+    chk.onchange = () => {
+      colorInput.disabled = !chk.checked;
+      row.classList.toggle('disabled', !chk.checked);
+    };
+    themeBox.appendChild(row);
+  });
 
   const catList = adminContent.querySelector('#adminCatList');
   CATEGORIES.forEach(cat => {
@@ -1402,11 +1482,26 @@ function toHex(c) {
   return /^#[0-9a-fA-F]{6}$/.test(c) ? c : '#6b46c1';
 }
 
+// 줄바꿈이 있는 문구는 <br>로 저장/표시하고, 편집 시에는 일반 줄바꿈으로 보여준다
+function htmlToText(html) {
+  return html.replace(/<br\s*\/?>/gi, '\n');
+}
+function textToHtml(text) {
+  return escapeHtml(text).replace(/\n/g, '<br>');
+}
+
 async function saveTheme() {
-  const t = {
-    primary: adminContent.querySelector('#themePrimary').value,
-    accent: adminContent.querySelector('#themeAccent').value
-  };
+  const rows = adminContent.querySelectorAll('#themeFields .color-field');
+  const t = {};
+  rows.forEach(row => {
+    if (row.querySelector('.theme-enable').checked) {
+      t[row.dataset.key] = row.querySelector('.theme-color').value;
+    }
+  });
+  if (Object.keys(t).length === 0) {
+    alert('변경할 색상 항목을 먼저 체크해주세요.');
+    return;
+  }
   applyTheme(t);
   if (db) {
     try {
@@ -1422,10 +1517,10 @@ async function saveTheme() {
 async function saveAppText() {
   const t = {
     appTitle: adminContent.querySelector('#txtAppTitle').value.trim(),
-    roomTitle: adminContent.querySelector('#txtRoomTitle').value.trim(),
+    roomTitle: textToHtml(adminContent.querySelector('#txtRoomTitle').value.trim()),
     roomSub: adminContent.querySelector('#txtRoomSub').value.trim(),
     coverTitle: adminContent.querySelector('#txtCoverTitle').value.trim(),
-    coverHint: adminContent.querySelector('#txtCoverHint').value.trim()
+    coverHint: textToHtml(adminContent.querySelector('#txtCoverHint').value.trim())
   };
   applyAppText(t);
   if (db) {
