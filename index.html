@@ -1084,9 +1084,20 @@ function attachRealtimeListeners() {
       db.collection(cat.collection).doc(id).onSnapshot(doc => {
         if (doc.exists) {
           const d = doc.data();
-          entryData[cat.key][id] = cat.kind === 'bible'
-            ? { book: d.book || '', note: d.note || '', updatedAt: d.updatedAt || '', weekKey: d.weekKey || '' }
-            : { text: d.text || '', updatedAt: d.updatedAt || '', weekKey: d.weekKey || '' };
+          const isStale = d.weekKey && d.weekKey !== currentWeekKey();
+
+          if (isStale) {
+            // 지난 주 기록: 화면 캡쳐 등으로 보관 후 자동 삭제 (서버에는 보관하지 않음)
+            const emptyData = cat.kind === 'bible'
+              ? { book: '', note: '', updatedAt: '', weekKey: '' }
+              : { text: '', updatedAt: '', weekKey: '' };
+            entryData[cat.key][id] = emptyData;
+            db.collection(cat.collection).doc(id).set(emptyData).catch(() => {});
+          } else {
+            entryData[cat.key][id] = cat.kind === 'bible'
+              ? { book: d.book || '', note: d.note || '', updatedAt: d.updatedAt || '', weekKey: d.weekKey || '' }
+              : { text: d.text || '', updatedAt: d.updatedAt || '', weekKey: d.weekKey || '' };
+          }
 
           if (id === currentRoomId) {
             if (!diaryCoverEl.classList.contains('hidden')) renderCheckTable();
