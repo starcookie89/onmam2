@@ -227,6 +227,7 @@
     background-image: repeating-linear-gradient(#fdf8ec 0px, #fdf8ec 27px, #eadfc4 28px);
     border-radius: 4px 14px 14px 4px;
     box-shadow: 0 4px 18px rgba(90,60,20,0.14), inset 4px 0 0 #c0392b;
+    margin-right: 44px;
   }
   @keyframes pageIn {
     from { opacity: 0; transform: translateX(24px); }
@@ -293,29 +294,42 @@
   .check-badge.o { background: #34d399; color: white; }
   .check-badge.x { background: #eee; color: #bbb; }
 
-  /* Category tabs */
+  /* 다이어리 본문 + 오른쪽 인덱스 탭 */
+  .diary-book {
+    position: relative;
+  }
   .cat-tabs {
+    position: absolute;
+    top: 22px;
+    right: 0;
+    width: 44px;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column;
     gap: 8px;
-    margin-bottom: 14px;
+    z-index: 6;
   }
   .cat-tab-btn {
     border: none;
-    background: white;
+    background: #fff8e6;
     color: var(--primary);
     font-weight: 700;
-    font-size: 0.88rem;
-    padding: 10px 16px;
-    border-radius: 22px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    padding: 9px 8px 9px 12px;
+    border-radius: 0 10px 10px 0;
     cursor: pointer;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    transition: background 0.2s, color 0.2s;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.12);
+    transition: transform 0.2s, background 0.2s, color 0.2s;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    letter-spacing: 0.05em;
   }
+  .cat-tab-btn:hover { transform: translateX(-3px); }
   .cat-tab-btn.active {
     background: var(--primary);
     color: white;
+    transform: translateX(-6px);
+    box-shadow: 3px 3px 10px rgba(0,0,0,0.2);
   }
 
   /* Tabs */
@@ -749,19 +763,22 @@
       <button id="adminGearBtn" class="toolbar-btn hidden">⚙️ 관리자</button>
     </div>
 
-    <!-- 다이어리 표지: 주간 신앙점검표 -->
-    <div id="diaryCover" class="diary-paper cover-page">
-      <div class="cover-title" id="coverTitleText">📔 이번 주 신앙점검표</div>
-      <div class="cover-week" id="coverWeekLabel"></div>
-      <div class="check-table" id="checkTable"></div>
-      <p class="cover-hint" id="coverHintText">코람데오의 마음으로 항목을 눌러 O/X를 표시하고,<br>아래 인덱스를 눌러 이번 주 내용을 작성해보세요</p>
+    <!-- 다이어리 본문: 표지 + 페이지 + 오른쪽 인덱스 탭 -->
+    <div class="diary-book">
+      <!-- 다이어리 표지: 주간 신앙점검표 -->
+      <div id="diaryCover" class="diary-paper cover-page">
+        <div class="cover-title" id="coverTitleText">📔 이번 주 신앙점검표</div>
+        <div class="cover-week" id="coverWeekLabel"></div>
+        <div class="check-table" id="checkTable"></div>
+        <p class="cover-hint" id="coverHintText">코람데오의 마음으로 항목을 눌러 O/X를 표시하고,<br>오른쪽 인덱스를 눌러 이번 주 내용을 작성해보세요</p>
+      </div>
+
+      <!-- 카테고리별 작성 페이지 -->
+      <div id="panels"></div>
+
+      <!-- 오른쪽 인덱스 탭 -->
+      <div class="cat-tabs" id="catTabs"></div>
     </div>
-
-    <!-- 인덱스 탭 -->
-    <div class="cat-tabs" id="catTabs"></div>
-
-    <!-- 카테고리별 작성 페이지 -->
-    <div id="panels"></div>
 
     <div class="diary-bottom-actions">
       <button id="backToCoverBtn" class="toolbar-btn hidden">📔 표지로 돌아가기</button>
@@ -988,6 +1005,10 @@ function showCover() {
   panelsEl.classList.add('hidden');
   document.getElementById('backToCoverBtn').classList.add('hidden');
   document.querySelectorAll('.cat-tab-btn').forEach(b => b.classList.remove('active'));
+  // 표지로 돌아올 때도 페이지가 넘어가는 효과를 다시 재생
+  diaryCoverEl.classList.remove('cover-page');
+  void diaryCoverEl.offsetWidth;
+  diaryCoverEl.classList.add('cover-page');
   renderCheckTable();
 }
 function renderCheckTable() {
