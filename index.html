@@ -84,6 +84,8 @@
     to { transform: rotate(360deg); }
   }
 
+  .hidden { display: none !important; }
+
   .container { max-width: 900px; margin: 0 auto; padding: 20px; padding-bottom: 60px; }
   header {
     text-align: center;
@@ -136,6 +138,149 @@
   @keyframes pulse {
     0%,100% { opacity: 1; } 50% { opacity: 0.3; }
   }
+
+  /* 사랑방 선택 화면 */
+  #roomSelectScreen {
+    background: linear-gradient(160deg, #3d2b1f 0%, #6b46c1 60%, #9333ea 100%);
+    border-radius: 20px;
+    padding: 50px 26px;
+    text-align: center;
+    color: #fff8e6;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  }
+  .room-select-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    line-height: 1.5;
+    margin-bottom: 8px;
+    color: #ffe28a;
+  }
+  .room-select-sub {
+    font-size: 0.9rem;
+    opacity: 0.85;
+    margin-bottom: 22px;
+  }
+  #roomSelect {
+    display: block;
+    width: 100%;
+    max-width: 260px;
+    margin: 0 auto 18px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: none;
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-align: center;
+    color: #3a3a3a;
+    -webkit-appearance: none;
+    appearance: none;
+    background: white;
+  }
+  .room-enter-btn {
+    width: 100%;
+    max-width: 260px;
+    font-size: 1rem;
+  }
+
+  /* 다이어리 툴바 */
+  .diary-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .toolbar-btn {
+    background: white;
+    color: #6b46c1;
+    border: 1px solid #e4d9fb;
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .diary-room-label {
+    font-weight: 800;
+    color: #6b46c1;
+    font-size: 1.05rem;
+  }
+  .diary-bottom-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+
+  /* 다이어리 종이 질감 */
+  .diary-paper {
+    background: #fdf8ec;
+    background-image: repeating-linear-gradient(#fdf8ec 0px, #fdf8ec 27px, #eadfc4 28px);
+    border-radius: 4px 14px 14px 4px;
+    box-shadow: 0 4px 18px rgba(90,60,20,0.14), inset 4px 0 0 #c0392b;
+  }
+  @keyframes pageIn {
+    from { opacity: 0; transform: translateX(24px); }
+    to { opacity: 1; transform: none; }
+  }
+  .cover-page {
+    text-align: center;
+    padding: 34px 24px !important;
+    margin-bottom: 16px;
+    animation: pageIn 0.35s ease;
+  }
+  .cover-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #6b46c1;
+    margin-bottom: 6px;
+  }
+  .cover-week {
+    font-size: 0.8rem;
+    color: #a4906a;
+    margin-bottom: 20px;
+  }
+  .cover-hint {
+    margin-top: 20px;
+    font-size: 0.82rem;
+    color: #a4906a;
+  }
+  .check-table {
+    max-width: 380px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .check-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255,255,255,0.6);
+    border: 1px solid #eadfc4;
+    border-radius: 12px;
+    padding: 12px 16px;
+  }
+  .check-row .label {
+    font-weight: 700;
+    color: #4a3a2a;
+    font-size: 0.95rem;
+  }
+  .check-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.95rem;
+  }
+  .check-badge.o { background: #34d399; color: white; }
+  .check-badge.x { background: #eee; color: #bbb; }
 
   /* Category tabs */
   .cat-tabs {
@@ -218,15 +363,13 @@
     color: white;
   }
 
-  /* Write panel */
+  /* Write panel (다이어리 페이지) */
   .panel {
-    background: white;
-    border-radius: 16px;
-    padding: 22px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    padding: 26px 24px 24px 34px;
     display: none;
+    margin-bottom: 16px;
   }
-  .panel.active { display: block; }
+  .panel.active { display: block; animation: pageIn 0.35s ease; }
   .panel h2 {
     color: #6b46c1;
     margin-bottom: 14px;
@@ -461,6 +604,77 @@
     color: #aaa;
     line-height: 1.5;
   }
+
+  /* 관리자 설정 모달 */
+  #adminModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 9000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #adminModal.show { display: flex; }
+  #adminBox {
+    background: white;
+    border-radius: 18px;
+    padding: 28px 22px 22px;
+    max-width: 420px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  }
+  #adminClose {
+    position: absolute;
+    top: 14px; right: 16px;
+    background: none; border: none;
+    font-size: 1.2rem; color: #999;
+    cursor: pointer;
+  }
+  #adminContent h3 {
+    color: #6b46c1;
+    font-size: 1.05rem;
+    margin-bottom: 16px;
+  }
+  .admin-field-group {
+    border-top: 1px solid #eee;
+    padding-top: 14px;
+    margin-top: 14px;
+  }
+  .admin-field-group:first-child {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+  }
+  .admin-field-title {
+    font-weight: 700;
+    color: #4a3a7a;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+  }
+  .admin-field-group label {
+    display: block;
+    font-size: 0.75rem;
+    color: #999;
+    margin: 8px 0 4px;
+  }
+  .admin-field-group input {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 9px 11px;
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+  #adminContent .actions {
+    margin-top: 18px;
+    display: flex;
+    justify-content: flex-end;
+  }
 </style>
 </head>
 <body class="loading">
@@ -482,11 +696,41 @@
     <span id="syncText">연결 중...</span>
   </div>
 
-  <div class="cat-tabs" id="catTabs"></div>
+  <!-- 사랑방 선택 화면 -->
+  <div id="roomSelectScreen">
+    <div class="room-select-title">🙏 2공동체<br>경건생활훈련 다이어리</div>
+    <p class="room-select-sub">본인의 사랑방 번호를 선택해주세요</p>
+    <select id="roomSelect"></select>
+    <button id="roomEnterBtn" class="btn room-enter-btn">다이어리 열기 →</button>
+  </div>
 
-  <div class="tabs" id="tabs"></div>
+  <!-- 다이어리 화면 -->
+  <div id="diaryScreen" class="hidden">
+    <div class="diary-toolbar">
+      <button id="switchRoomBtn" class="toolbar-btn">🔁 다른 사랑방</button>
+      <div class="diary-room-label" id="diaryRoomLabel"></div>
+      <button id="adminGearBtn" class="toolbar-btn hidden">⚙️ 관리자</button>
+    </div>
 
-  <div id="panels"></div>
+    <!-- 다이어리 표지: 주간 신앙점검표 -->
+    <div id="diaryCover" class="diary-paper cover-page">
+      <div class="cover-title">📔 이번 주 신앙점검표</div>
+      <div class="cover-week" id="coverWeekLabel"></div>
+      <div class="check-table" id="checkTable"></div>
+      <p class="cover-hint">아래 인덱스를 눌러 이번 주 내용을 작성해보세요</p>
+    </div>
+
+    <!-- 인덱스 탭 -->
+    <div class="cat-tabs" id="catTabs"></div>
+
+    <!-- 카테고리별 작성 페이지 -->
+    <div id="panels"></div>
+
+    <div class="diary-bottom-actions">
+      <button id="backToCoverBtn" class="toolbar-btn hidden">📔 표지로 돌아가기</button>
+      <button id="viewAllBtn" class="toolbar-btn">👀 전체 사랑방 보기</button>
+    </div>
+  </div>
 
 </div>
 
@@ -509,6 +753,14 @@
   <div id="manualInstallBox">
     <button id="manualInstallClose">✕</button>
     <div id="manualInstallContent"></div>
+  </div>
+</div>
+
+<!-- 관리자 설정 모달 -->
+<div id="adminModal">
+  <div id="adminBox">
+    <button id="adminClose">✕</button>
+    <div id="adminContent"></div>
   </div>
 </div>
 
@@ -590,16 +842,23 @@ CATEGORIES.forEach(cat => {
   entryData[cat.key] = {};
   groupIds.forEach(id => {
     entryData[cat.key][id] = cat.kind === 'bible'
-      ? { book: '', note: '', updatedAt: '' }
-      : { text: '', updatedAt: '' };
+      ? { book: '', note: '', updatedAt: '', weekKey: '' }
+      : { text: '', updatedAt: '', weekKey: '' };
   });
 });
 
 let currentCat = CATEGORIES[0].key;
+let currentRoomId = null;
+
+/* ---------- 관리자 ----------
+   ⚠️ 별도 로그인 시스템이 없어 클라이언트 코드에 비밀번호가 그대로 노출됩니다.
+   보안이 중요하다면 이 값을 주기적으로 변경해주세요. */
+const ADMIN_ROOM_ID = '3'; // 2-3 사랑방으로 입장할 때만 관리자 버튼이 보임
+const ADMIN_PASSWORD = '온맘2공관리';
 
 const catTabsEl = document.getElementById('catTabs');
-const tabsEl = document.getElementById('tabs');
 const panelsEl = document.getElementById('panels');
+const diaryCoverEl = document.getElementById('diaryCover');
 
 /* ---------- Sync status UI ---------- */
 function setSyncStatus(state, text) {
@@ -614,49 +873,117 @@ function isFilled(catKey, id) {
   return catConfig(catKey).kind === 'bible' ? !!(d.book || d.note) : !!d.text;
 }
 
-/* ---------- Build category tabs ---------- */
+/* ---------- 주간 신앙점검표 기준: 매주 일요일 새벽 4시 리셋 ---------- */
+function getWeekStart(date) {
+  const dt = new Date(date);
+  const day = dt.getDay(); // 0 = 일요일
+  const start = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() - day, 4, 0, 0, 0);
+  if (dt < start) start.setDate(start.getDate() - 7);
+  return start;
+}
+function weekKeyOf(date) {
+  const s = getWeekStart(date);
+  return s.getFullYear() + '-' + String(s.getMonth() + 1).padStart(2, '0') + '-' + String(s.getDate()).padStart(2, '0');
+}
+function currentWeekKey() { return weekKeyOf(new Date()); }
+function weekLabel() {
+  const s = getWeekStart(new Date());
+  const e = new Date(s);
+  e.setDate(e.getDate() + 6);
+  const fmt = d => (d.getMonth() + 1) + '/' + d.getDate();
+  return fmt(s) + '(일) ~ ' + fmt(e) + '(토) 주간';
+}
+function isFilledThisWeek(catKey) {
+  if (!currentRoomId) return false;
+  const d = entryData[catKey][currentRoomId];
+  if (!d) return false;
+  const filled = catConfig(catKey).kind === 'bible' ? !!(d.book || d.note) : !!d.text;
+  return filled && d.weekKey === currentWeekKey();
+}
+
+/* ---------- 사랑방 선택 ---------- */
+const roomSelect = document.getElementById('roomSelect');
+groupIds.forEach(id => {
+  const opt = document.createElement('option');
+  opt.value = id;
+  opt.textContent = '2-' + id + ' 사랑방';
+  roomSelect.appendChild(opt);
+});
+const savedRoom = localStorage.getItem('onmam2_room');
+if (savedRoom && groupIds.includes(savedRoom)) roomSelect.value = savedRoom;
+
+document.getElementById('roomEnterBtn').onclick = () => enterRoom(roomSelect.value);
+document.getElementById('switchRoomBtn').onclick = () => {
+  document.getElementById('diaryScreen').classList.add('hidden');
+  document.getElementById('roomSelectScreen').classList.remove('hidden');
+};
+
+function enterRoom(id) {
+  currentRoomId = id;
+  localStorage.setItem('onmam2_room', id);
+  document.getElementById('roomSelectScreen').classList.add('hidden');
+  document.getElementById('diaryScreen').classList.remove('hidden');
+  document.getElementById('diaryRoomLabel').textContent = '2-' + id + ' 사랑방';
+  document.getElementById('adminGearBtn').classList.toggle('hidden', id !== ADMIN_ROOM_ID);
+  showCover();
+}
+
+/* ---------- 다이어리 표지 (주간 점검표) ---------- */
+function showCover() {
+  diaryCoverEl.classList.remove('hidden');
+  panelsEl.classList.add('hidden');
+  document.getElementById('backToCoverBtn').classList.add('hidden');
+  document.querySelectorAll('.cat-tab-btn').forEach(b => b.classList.remove('active'));
+  renderCheckTable();
+}
+function renderCheckTable() {
+  document.getElementById('coverWeekLabel').textContent = weekLabel();
+  const box = document.getElementById('checkTable');
+  box.innerHTML = '';
+  CATEGORIES.forEach(cat => {
+    const ok = isFilledThisWeek(cat.key);
+    const row = document.createElement('div');
+    row.className = 'check-row';
+    row.innerHTML = '<span class="label">' + escapeHtml(cat.label) + '</span>' +
+      '<span class="check-badge ' + (ok ? 'o' : 'x') + '">' + (ok ? 'O' : 'X') + '</span>';
+    box.appendChild(row);
+  });
+}
+// 새벽 4시 리셋 시점을 놓치지 않도록 표지가 열려 있는 동안 주기적으로 재계산
+setInterval(() => {
+  if (currentRoomId && !diaryCoverEl.classList.contains('hidden')) renderCheckTable();
+}, 5 * 60 * 1000);
+
+/* ---------- 인덱스 탭(카테고리) ---------- */
 CATEGORIES.forEach(cat => {
   const btn = document.createElement('button');
   btn.className = 'cat-tab-btn';
   btn.textContent = cat.label;
   btn.dataset.cat = cat.key;
-  btn.onclick = () => switchCategory(cat.key);
+  btn.onclick = () => showCategoryPage(cat.key);
   catTabsEl.appendChild(btn);
 });
 
-function switchCategory(key) {
+function showCategoryPage(key) {
   currentCat = key;
+  diaryCoverEl.classList.add('hidden');
+  panelsEl.classList.remove('hidden');
+  document.getElementById('backToCoverBtn').classList.remove('hidden');
   document.querySelectorAll('.cat-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === key));
-  closeAllView();
   renderTabsAndPanels();
-  switchTab(groupIds[0]);
+  switchTab(currentRoomId);
 }
+document.getElementById('backToCoverBtn').onclick = () => showCover();
+document.getElementById('viewAllBtn').onclick = () => openAllView();
 
-/* ---------- Build numbered tabs + write panels for current category ---------- */
+/* ---------- 다이어리 페이지(작성 화면) 구성 ---------- */
 function renderTabsAndPanels() {
   const cat = catConfig(currentCat);
-  tabsEl.innerHTML = '';
   panelsEl.innerHTML = '';
-
-  groupIds.forEach((id, idx) => {
-    const btn = document.createElement('button');
-    btn.className = 'tab-btn' + (isFilled(currentCat, id) ? ' filled' : '');
-    btn.textContent = (idx + 1);
-    btn.dataset.target = id;
-    btn.onclick = () => switchTab(id);
-    tabsEl.appendChild(btn);
-  });
-
-  const allBtn = document.createElement('button');
-  allBtn.className = 'tab-btn all-tab';
-  allBtn.textContent = '전체보기';
-  allBtn.dataset.target = 'all';
-  allBtn.onclick = () => openAllView();
-  tabsEl.appendChild(allBtn);
 
   groupIds.forEach(id => {
     const panel = document.createElement('div');
-    panel.className = 'panel';
+    panel.className = 'panel diary-paper';
     panel.dataset.panel = id;
 
     if (cat.kind === 'bible') {
@@ -711,13 +1038,13 @@ function nowStr() {
 async function saveEntry(id, payload, saveMsg, updatedLabel) {
   const cat = catConfig(currentCat);
   const dateStr = nowStr();
+  const wk = currentWeekKey();
   const data = cat.kind === 'bible'
-    ? { book: (payload.book || '').trim(), note: (payload.note || '').trim(), updatedAt: dateStr }
-    : { text: (payload.text || '').trim(), updatedAt: dateStr };
+    ? { book: (payload.book || '').trim(), note: (payload.note || '').trim(), updatedAt: dateStr, weekKey: wk }
+    : { text: (payload.text || '').trim(), updatedAt: dateStr, weekKey: wk };
 
   entryData[currentCat][id] = data;
   updatedLabel.textContent = '마지막 저장: ' + dateStr;
-  updateTabIndicator(id);
 
   if (db) {
     setSyncStatus('syncing', '저장 중...');
@@ -732,13 +1059,6 @@ async function saveEntry(id, payload, saveMsg, updatedLabel) {
   }
   saveMsg.classList.add('show');
   setTimeout(() => saveMsg.classList.remove('show'), 1800);
-}
-
-function updateTabIndicator(id) {
-  const btn = tabsEl.querySelector('.tab-btn[data-target="' + id + '"]');
-  if (!btn) return;
-  if (isFilled(currentCat, id)) btn.classList.add('filled');
-  else btn.classList.remove('filled');
 }
 
 function refreshPanelFromData(panel, id) {
@@ -765,20 +1085,26 @@ function attachRealtimeListeners() {
         if (doc.exists) {
           const d = doc.data();
           entryData[cat.key][id] = cat.kind === 'bible'
-            ? { book: d.book || '', note: d.note || '', updatedAt: d.updatedAt || '' }
-            : { text: d.text || '', updatedAt: d.updatedAt || '' };
+            ? { book: d.book || '', note: d.note || '', updatedAt: d.updatedAt || '', weekKey: d.weekKey || '' }
+            : { text: d.text || '', updatedAt: d.updatedAt || '', weekKey: d.weekKey || '' };
 
-          if (cat.key === currentCat) {
-            updateTabIndicator(id);
-            const panel = panelsEl.querySelector('.panel[data-panel="' + id + '"]');
-            if (panel) refreshPanelFromData(panel, id);
-            if (allView.classList.contains('active')) renderAll();
+          if (id === currentRoomId) {
+            if (!diaryCoverEl.classList.contains('hidden')) renderCheckTable();
+            if (cat.key === currentCat) {
+              const panel = panelsEl.querySelector('.panel[data-panel="' + id + '"]');
+              if (panel) refreshPanelFromData(panel, id);
+            }
           }
+          if (allView.classList.contains('active')) renderAll();
         }
       }, err => {
         setSyncStatus('offline', '동기화 오류');
       });
     });
+  });
+
+  db.collection('comm2_settings').doc('categories').onSnapshot(doc => {
+    if (doc.exists) applySettingsOverrides(doc.data());
   });
 }
 
@@ -792,7 +1118,6 @@ function openAllView() {
 }
 function closeAllView() {
   allView.classList.remove('active');
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
 }
 
 function renderAll() {
@@ -832,8 +1157,6 @@ function escapeHtml(str) {
 }
 
 function switchTab(id) {
-  closeAllView();
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.target === id));
   document.querySelectorAll('.panel').forEach(p => {
     const active = p.dataset.panel === id;
     p.classList.toggle('active', active);
@@ -841,9 +1164,77 @@ function switchTab(id) {
   });
 }
 
-/* ---------- Init ---------- */
-switchCategory(CATEGORIES[0].key);
+/* ---------- 관리자 설정 ---------- */
+const adminModal = document.getElementById('adminModal');
+const adminContent = document.getElementById('adminContent');
+document.getElementById('adminClose').onclick = () => adminModal.classList.remove('show');
+adminModal.addEventListener('click', (e) => { if (e.target === adminModal) adminModal.classList.remove('show'); });
 
+document.getElementById('adminGearBtn').onclick = () => {
+  const pw = prompt('관리자 비밀번호를 입력하세요');
+  if (pw === null) return;
+  if (pw !== ADMIN_PASSWORD) { alert('비밀번호가 올바르지 않습니다.'); return; }
+  openAdminPanel();
+};
+
+function openAdminPanel() {
+  adminContent.innerHTML = '<h3>⚙️ 카테고리 문구 설정</h3><div id="adminFields"></div><div class="actions"><button class="btn" id="adminSaveBtn">저장하기</button></div>';
+  const fieldsBox = adminContent.querySelector('#adminFields');
+  CATEGORIES.forEach(cat => {
+    const wrap = document.createElement('div');
+    wrap.className = 'admin-field-group';
+    wrap.innerHTML =
+      '<div class="admin-field-title">' + escapeHtml(cat.label) + '</div>' +
+      '<label>탭 이름</label>' +
+      '<input type="text" data-key="' + cat.key + '" data-field="label" value="' + escapeHtml(cat.label) + '">' +
+      '<label>안내 문구(제목)</label>' +
+      '<input type="text" data-key="' + cat.key + '" data-field="heading" value="' + escapeHtml(cat.heading) + '">' +
+      '<label>입력창 안내(placeholder)</label>' +
+      '<input type="text" data-key="' + cat.key + '" data-field="placeholder" value="' + escapeHtml(cat.placeholder || '') + '">';
+    fieldsBox.appendChild(wrap);
+  });
+  adminContent.querySelector('#adminSaveBtn').onclick = saveAdminSettings;
+  adminModal.classList.add('show');
+}
+
+async function saveAdminSettings() {
+  const inputs = adminContent.querySelectorAll('input[data-key]');
+  const overrides = {};
+  inputs.forEach(inp => {
+    const key = inp.dataset.key, field = inp.dataset.field;
+    overrides[key] = overrides[key] || {};
+    overrides[key][field] = inp.value;
+  });
+  applySettingsOverrides(overrides);
+  if (db) {
+    try {
+      await db.collection('comm2_settings').doc('categories').set(overrides, { merge: true });
+    } catch (e) {
+      alert('저장 중 오류가 발생했습니다. 인터넷 연결을 확인해주세요.');
+      return;
+    }
+  }
+  adminModal.classList.remove('show');
+  alert('설정이 저장되었습니다.');
+}
+
+function applySettingsOverrides(overrides) {
+  Object.keys(overrides || {}).forEach(key => {
+    const cat = catConfig(key);
+    if (!cat) return;
+    Object.assign(cat, overrides[key]);
+  });
+  document.querySelectorAll('.cat-tab-btn').forEach(b => {
+    const cat = catConfig(b.dataset.cat);
+    if (cat) b.textContent = cat.label;
+  });
+  if (currentRoomId && !panelsEl.classList.contains('hidden')) {
+    renderTabsAndPanels();
+    switchTab(currentRoomId);
+  }
+}
+
+/* ---------- Init ---------- */
 waitFirebase(() => {
   try {
     firebase.initializeApp(FB_CONFIG);
