@@ -538,6 +538,29 @@
     font-size: 0.75rem;
     color: #999;
   }
+  .mini-check-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .mini-check-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #faf7ff;
+    border-radius: 8px;
+    padding: 7px 10px;
+  }
+  .mini-check-row .label {
+    font-size: 0.85rem;
+    color: #444;
+    font-weight: 600;
+  }
+  .mini-check-row .check-badge {
+    width: 24px;
+    height: 24px;
+    font-size: 0.78rem;
+  }
   .all-card .bible-book {
     font-weight: 700;
     color: var(--primary);
@@ -1153,7 +1176,13 @@ function showCategoryPage(key) {
   switchTab(currentRoomId);
 }
 document.getElementById('backToCoverBtn').onclick = () => showCover();
-document.getElementById('viewAllBtn').onclick = () => openAllView();
+document.getElementById('viewAllBtn').onclick = () => {
+  if (!diaryCoverEl.classList.contains('hidden')) {
+    openAllChecks();
+  } else {
+    openAllView();
+  }
+};
 
 /* ---------- 다이어리 페이지(작성 화면) 구성 ---------- */
 function renderTabsAndPanels() {
@@ -1289,8 +1318,33 @@ function openAllView() {
   renderAll();
   allView.classList.add('active');
 }
+function openAllChecks() {
+  renderAllChecks();
+  allView.classList.add('active');
+}
 function closeAllView() {
   allView.classList.remove('active');
+}
+
+function renderAllChecks() {
+  document.getElementById('allTitle').textContent = '2공동체 전체 주간 점검표';
+  const grid = document.getElementById('allGrid');
+  grid.innerHTML = '';
+  groupIds.forEach(id => {
+    const eff = getEffectiveChecks(id);
+    const allDone = CATEGORIES.length > 0 && CATEGORIES.every(cat => eff[cat.key]);
+    const card = document.createElement('div');
+    card.className = 'all-card' + (allDone ? ' filled' : '');
+
+    const rows = CATEGORIES.map(cat => {
+      const ok = !!eff[cat.key];
+      return '<div class="mini-check-row"><span class="label">' + escapeHtml(cat.label) + '</span>' +
+        '<span class="check-badge ' + (ok ? 'o' : 'x') + '">' + (ok ? 'O' : 'X') + '</span></div>';
+    }).join('');
+
+    card.innerHTML = '<h3>' + id + '사랑방</h3><div class="mini-check-list">' + rows + '</div>';
+    grid.appendChild(card);
+  });
 }
 
 function renderAll() {
