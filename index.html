@@ -137,6 +137,31 @@
     0%,100% { opacity: 1; } 50% { opacity: 0.3; }
   }
 
+  /* Category tabs */
+  .cat-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .cat-tab-btn {
+    border: none;
+    background: white;
+    color: #6b46c1;
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 10px 16px;
+    border-radius: 22px;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    transition: background 0.2s, color 0.2s;
+  }
+  .cat-tab-btn.active {
+    background: #6b46c1;
+    color: white;
+  }
+
   /* Tabs */
   .tabs {
     display: flex;
@@ -219,6 +244,19 @@
     font-family: inherit;
   }
   .panel textarea:focus {
+    outline: 2px solid #c4b5fd;
+    border-color: #a78bfa;
+  }
+  .panel input.bible-input {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 1rem;
+    font-family: inherit;
+    margin-bottom: 10px;
+  }
+  .panel input.bible-input:focus {
     outline: 2px solid #c4b5fd;
     border-color: #a78bfa;
   }
@@ -331,6 +369,12 @@
     font-size: 0.75rem;
     color: #999;
   }
+  .all-card .bible-book {
+    font-weight: 700;
+    color: #6b46c1;
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+  }
 
   /* Install banner */
   #installBanner {
@@ -429,7 +473,7 @@
 
 <div class="container">
   <header>
-    <h1>🙏 2공동체 기도제목</h1>
+    <h1>🙏 2공동체 경건생활훈련</h1>
     <button id="headerInstallBtn">📲 홈 화면에 추가</button>
   </header>
 
@@ -437,6 +481,8 @@
     <span class="sync-dot" id="syncDot"></span>
     <span id="syncText">연결 중...</span>
   </div>
+
+  <div class="cat-tabs" id="catTabs"></div>
 
   <div class="tabs" id="tabs"></div>
 
@@ -446,7 +492,7 @@
 
 <div id="allView">
   <div class="all-header">
-    <h2>2공동체 전체 기도제목</h2>
+    <h2 id="allTitle">2공동체 전체 기도제목</h2>
     <button class="close-btn" id="closeAllBtn">✕</button>
   </div>
   <div class="all-grid" id="allGrid"></div>
@@ -486,8 +532,6 @@ const FB_CONFIG = {
   messagingSenderId: "865257671140",
   appId: "1:865257671140:web:a25f718881c64673eedff1"
 };
-const COLLECTION = "comm2_prayers"; // 문서ID: "1" ~ "14"
-
 let db = null;
 let fbReady = false;
 
@@ -504,10 +548,56 @@ const NUM_GROUPS = 14;
 let groupIds = [];
 for (let i = 1; i <= NUM_GROUPS; i++) groupIds.push(String(i));
 
-// In-memory data store
-let prayerData = {};
-groupIds.forEach(id => { prayerData[id] = { text: '', updatedAt: '' }; });
+/* ---------- 훈련 영역(카테고리) 정의 ----------
+   collection: 기존 기도제목 데이터 보존을 위해 "comm2_prayers"는 그대로 유지 */
+const CATEGORIES = [
+  {
+    key: 'prayer', label: '🙏 기도', collection: 'comm2_prayers', kind: 'text',
+    heading: '존귀한 순장님의 기도제목을 적어주시면 함께 기도하겠습니다',
+    placeholder: '존귀한 순장님의 기도제목을 적어주시면 함께 기도하겠습니다',
+    allTitle: '2공동체 전체 기도제목', cardSuffix: '사랑방 기도제목',
+    emptyMsg: '아직 작성된 기도제목이 없습니다.'
+  },
+  {
+    key: 'diary', label: '📔 신앙일기', collection: 'comm2_diary', kind: 'text',
+    heading: '이번 주 나눈 은혜, 신앙일기를 적어주세요',
+    placeholder: '이번 주 신앙일기를 자유롭게 작성해주세요',
+    allTitle: '2공동체 전체 신앙일기', cardSuffix: '사랑방 신앙일기',
+    emptyMsg: '아직 작성된 신앙일기가 없습니다.'
+  },
+  {
+    key: 'bible', label: '📖 성경읽기', collection: 'comm2_bible', kind: 'bible',
+    heading: '현재 읽고 있는 성경 본문을 적어주세요',
+    placeholder: '예) 창세기 15장',
+    notePlaceholder: '나누고 싶은 은혜가 있다면 자유롭게 적어주세요 (선택)',
+    allTitle: '2공동체 전체 성경읽기', cardSuffix: '사랑방 성경읽기',
+    emptyMsg: '아직 작성된 내용이 없습니다.'
+  },
+  {
+    key: 'sermon', label: '✝️ 말씀나눔', collection: 'comm2_sermon', kind: 'text',
+    heading: '주일예배 말씀을 묵상하며 나누고 싶은 은혜를 적어주세요',
+    placeholder: '주일예배 말씀 묵상나눔을 자유롭게 작성해주세요',
+    allTitle: '2공동체 전체 말씀나눔', cardSuffix: '사랑방 말씀나눔',
+    emptyMsg: '아직 작성된 나눔이 없습니다.'
+  }
+];
 
+function catConfig(key) { return CATEGORIES.find(c => c.key === key); }
+
+// In-memory data store: entryData[categoryKey][id]
+let entryData = {};
+CATEGORIES.forEach(cat => {
+  entryData[cat.key] = {};
+  groupIds.forEach(id => {
+    entryData[cat.key][id] = cat.kind === 'bible'
+      ? { book: '', note: '', updatedAt: '' }
+      : { text: '', updatedAt: '' };
+  });
+});
+
+let currentCat = CATEGORIES[0].key;
+
+const catTabsEl = document.getElementById('catTabs');
 const tabsEl = document.getElementById('tabs');
 const panelsEl = document.getElementById('panels');
 
@@ -519,50 +609,97 @@ function setSyncStatus(state, text) {
   txt.textContent = text;
 }
 
-/* ---------- Build tabs ---------- */
-groupIds.forEach((id, idx) => {
+function isFilled(catKey, id) {
+  const d = entryData[catKey][id];
+  return catConfig(catKey).kind === 'bible' ? !!(d.book || d.note) : !!d.text;
+}
+
+/* ---------- Build category tabs ---------- */
+CATEGORIES.forEach(cat => {
   const btn = document.createElement('button');
-  btn.className = 'tab-btn';
-  btn.textContent = (idx + 1);
-  btn.dataset.target = id;
-  btn.onclick = () => switchTab(id);
-  tabsEl.appendChild(btn);
+  btn.className = 'cat-tab-btn';
+  btn.textContent = cat.label;
+  btn.dataset.cat = cat.key;
+  btn.onclick = () => switchCategory(cat.key);
+  catTabsEl.appendChild(btn);
 });
 
-const allBtn = document.createElement('button');
-allBtn.className = 'tab-btn all-tab';
-allBtn.textContent = '전체보기';
-allBtn.dataset.target = 'all';
-allBtn.onclick = () => openAllView();
-tabsEl.appendChild(allBtn);
+function switchCategory(key) {
+  currentCat = key;
+  document.querySelectorAll('.cat-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === key));
+  closeAllView();
+  renderTabsAndPanels();
+  switchTab(groupIds[0]);
+}
 
-/* ---------- Build write panels ---------- */
-groupIds.forEach(id => {
-  const panel = document.createElement('div');
-  panel.className = 'panel';
-  panel.dataset.panel = id;
+/* ---------- Build numbered tabs + write panels for current category ---------- */
+function renderTabsAndPanels() {
+  const cat = catConfig(currentCat);
+  tabsEl.innerHTML = '';
+  panelsEl.innerHTML = '';
 
-  panel.innerHTML = `
-    <h2>존귀한 순장님의 기도제목을 적어주시면 함께 기도하겠습니다</h2>
-    <textarea placeholder="존귀한 순장님의 기도제목을 적어주시면 함께 기도하겠습니다"></textarea>
-    <div class="meta">
-      <span class="save-msg">저장되었습니다 ✓</span>
-      <span class="updated-label"></span>
-    </div>
-    <div class="actions">
-      <button class="btn save-btn">저장하기</button>
-    </div>
-  `;
+  groupIds.forEach((id, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (isFilled(currentCat, id) ? ' filled' : '');
+    btn.textContent = (idx + 1);
+    btn.dataset.target = id;
+    btn.onclick = () => switchTab(id);
+    tabsEl.appendChild(btn);
+  });
 
-  const textarea = panel.querySelector('textarea');
-  const saveBtn = panel.querySelector('.save-btn');
-  const saveMsg = panel.querySelector('.save-msg');
-  const updatedLabel = panel.querySelector('.updated-label');
+  const allBtn = document.createElement('button');
+  allBtn.className = 'tab-btn all-tab';
+  allBtn.textContent = '전체보기';
+  allBtn.dataset.target = 'all';
+  allBtn.onclick = () => openAllView();
+  tabsEl.appendChild(allBtn);
 
-  saveBtn.onclick = () => savePrayer(id, textarea.value, saveMsg, updatedLabel);
+  groupIds.forEach(id => {
+    const panel = document.createElement('div');
+    panel.className = 'panel';
+    panel.dataset.panel = id;
 
-  panelsEl.appendChild(panel);
-});
+    if (cat.kind === 'bible') {
+      panel.innerHTML = `
+        <h2>${cat.heading}</h2>
+        <input type="text" class="bible-input" placeholder="${cat.placeholder}">
+        <textarea placeholder="${cat.notePlaceholder}"></textarea>
+        <div class="meta">
+          <span class="save-msg">저장되었습니다 ✓</span>
+          <span class="updated-label"></span>
+        </div>
+        <div class="actions">
+          <button class="btn save-btn">저장하기</button>
+        </div>
+      `;
+      const bookInput = panel.querySelector('.bible-input');
+      const textarea = panel.querySelector('textarea');
+      const saveBtn = panel.querySelector('.save-btn');
+      const saveMsg = panel.querySelector('.save-msg');
+      const updatedLabel = panel.querySelector('.updated-label');
+      saveBtn.onclick = () => saveEntry(id, { book: bookInput.value, note: textarea.value }, saveMsg, updatedLabel);
+    } else {
+      panel.innerHTML = `
+        <h2>${cat.heading}</h2>
+        <textarea placeholder="${cat.placeholder}"></textarea>
+        <div class="meta">
+          <span class="save-msg">저장되었습니다 ✓</span>
+          <span class="updated-label"></span>
+        </div>
+        <div class="actions">
+          <button class="btn save-btn">저장하기</button>
+        </div>
+      `;
+      const textarea = panel.querySelector('textarea');
+      const saveBtn = panel.querySelector('.save-btn');
+      const saveMsg = panel.querySelector('.save-msg');
+      const updatedLabel = panel.querySelector('.updated-label');
+      saveBtn.onclick = () => saveEntry(id, { text: textarea.value }, saveMsg, updatedLabel);
+    }
+
+    panelsEl.appendChild(panel);
+  });
+}
 
 /* ---------- Save (Firestore + local) ---------- */
 function nowStr() {
@@ -571,21 +708,23 @@ function nowStr() {
          String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
 }
 
-async function savePrayer(id, text, saveMsg, updatedLabel) {
-  const trimmed = text.trim();
+async function saveEntry(id, payload, saveMsg, updatedLabel) {
+  const cat = catConfig(currentCat);
   const dateStr = nowStr();
-  prayerData[id] = { text: trimmed, updatedAt: dateStr };
+  const data = cat.kind === 'bible'
+    ? { book: (payload.book || '').trim(), note: (payload.note || '').trim(), updatedAt: dateStr }
+    : { text: (payload.text || '').trim(), updatedAt: dateStr };
+
+  entryData[currentCat][id] = data;
   updatedLabel.textContent = '마지막 저장: ' + dateStr;
   updateTabIndicator(id);
 
   if (db) {
     setSyncStatus('syncing', '저장 중...');
     try {
-      await db.collection(COLLECTION).doc(id).set({
-        text: trimmed,
-        updatedAt: dateStr,
+      await db.collection(cat.collection).doc(id).set(Object.assign({}, data, {
         updatedAtServer: firebase.firestore.FieldValue.serverTimestamp()
-      });
+      }));
       setSyncStatus('online', '실시간 동기화 중');
     } catch (e) {
       setSyncStatus('offline', '저장 실패 - 인터넷 확인 필요');
@@ -597,32 +736,48 @@ async function savePrayer(id, text, saveMsg, updatedLabel) {
 
 function updateTabIndicator(id) {
   const btn = tabsEl.querySelector('.tab-btn[data-target="' + id + '"]');
-  if (prayerData[id].text) btn.classList.add('filled');
+  if (!btn) return;
+  if (isFilled(currentCat, id)) btn.classList.add('filled');
   else btn.classList.remove('filled');
 }
 
-/* ---------- Real-time listener: keep all 14 in sync ---------- */
-function attachRealtimeListener() {
-  groupIds.forEach(id => {
-    db.collection(COLLECTION).doc(id).onSnapshot(doc => {
-      if (doc.exists) {
-        const d = doc.data();
-        prayerData[id] = { text: d.text || '', updatedAt: d.updatedAt || '' };
-        updateTabIndicator(id);
+function refreshPanelFromData(panel, id) {
+  const cat = catConfig(currentCat);
+  const data = entryData[currentCat][id];
+  const updatedLabel = panel.querySelector('.updated-label');
+  if (cat.kind === 'bible') {
+    const bookInput = panel.querySelector('.bible-input');
+    const textarea = panel.querySelector('textarea');
+    if (document.activeElement !== bookInput) bookInput.value = data.book;
+    if (document.activeElement !== textarea) textarea.value = data.note;
+  } else {
+    const textarea = panel.querySelector('textarea');
+    if (document.activeElement !== textarea) textarea.value = data.text;
+  }
+  updatedLabel.textContent = data.updatedAt ? '마지막 저장: ' + data.updatedAt : '';
+}
 
-        // If this panel is currently inactive (not being edited), refresh textarea
-        const panel = panelsEl.querySelector('.panel[data-panel="' + id + '"]');
-        const textarea = panel.querySelector('textarea');
-        const updatedLabel = panel.querySelector('.updated-label');
-        if (document.activeElement !== textarea) {
-          textarea.value = prayerData[id].text;
+/* ---------- Real-time listener: keep all categories x 14 in sync ---------- */
+function attachRealtimeListeners() {
+  CATEGORIES.forEach(cat => {
+    groupIds.forEach(id => {
+      db.collection(cat.collection).doc(id).onSnapshot(doc => {
+        if (doc.exists) {
+          const d = doc.data();
+          entryData[cat.key][id] = cat.kind === 'bible'
+            ? { book: d.book || '', note: d.note || '', updatedAt: d.updatedAt || '' }
+            : { text: d.text || '', updatedAt: d.updatedAt || '' };
+
+          if (cat.key === currentCat) {
+            updateTabIndicator(id);
+            const panel = panelsEl.querySelector('.panel[data-panel="' + id + '"]');
+            if (panel) refreshPanelFromData(panel, id);
+            if (allView.classList.contains('active')) renderAll();
+          }
         }
-        updatedLabel.textContent = prayerData[id].updatedAt ? '마지막 저장: ' + prayerData[id].updatedAt : '';
-
-        if (allView.classList.contains('active')) renderAll();
-      }
-    }, err => {
-      setSyncStatus('offline', '동기화 오류');
+      }, err => {
+        setSyncStatus('offline', '동기화 오류');
+      });
     });
   });
 }
@@ -641,15 +796,29 @@ function closeAllView() {
 }
 
 function renderAll() {
+  const cat = catConfig(currentCat);
+  document.getElementById('allTitle').textContent = cat.allTitle;
   const grid = document.getElementById('allGrid');
   grid.innerHTML = '';
   groupIds.forEach(id => {
-    const data = prayerData[id];
+    const data = entryData[currentCat][id];
+    const filled = isFilled(currentCat, id);
     const card = document.createElement('div');
-    card.className = 'all-card' + (data.text ? ' filled' : '');
+    card.className = 'all-card' + (filled ? ' filled' : '');
+
+    let bodyHtml;
+    if (cat.kind === 'bible') {
+      bodyHtml = filled
+        ? (data.book ? `<div class="bible-book">📖 ${escapeHtml(data.book)}</div>` : '') +
+          (data.note ? `<div class="content">${escapeHtml(data.note)}</div>` : '')
+        : `<div class="content empty">${cat.emptyMsg}</div>`;
+    } else {
+      bodyHtml = `<div class="content ${data.text ? '' : 'empty'}">${data.text ? escapeHtml(data.text) : cat.emptyMsg}</div>`;
+    }
+
     card.innerHTML = `
-      <h3>${id}사랑방 기도제목</h3>
-      <div class="content ${data.text ? '' : 'empty'}">${data.text ? escapeHtml(data.text) : '아직 작성된 기도제목이 없습니다.'}</div>
+      <h3>${id}${cat.cardSuffix}</h3>
+      ${bodyHtml}
       ${data.updatedAt ? '<div class="updated">업데이트: ' + data.updatedAt + '</div>' : ''}
     `;
     grid.appendChild(card);
@@ -668,25 +837,19 @@ function switchTab(id) {
   document.querySelectorAll('.panel').forEach(p => {
     const active = p.dataset.panel === id;
     p.classList.toggle('active', active);
-    if (active) {
-      const textarea = p.querySelector('textarea');
-      textarea.value = prayerData[id].text;
-      const updatedLabel = p.querySelector('.updated-label');
-      updatedLabel.textContent = prayerData[id].updatedAt ? '마지막 저장: ' + prayerData[id].updatedAt : '';
-    }
+    if (active) refreshPanelFromData(p, id);
   });
 }
 
 /* ---------- Init ---------- */
-groupIds.forEach(id => updateTabIndicator(id));
-switchTab(groupIds[0]);
+switchCategory(CATEGORIES[0].key);
 
 waitFirebase(() => {
   try {
     firebase.initializeApp(FB_CONFIG);
     db = firebase.firestore();
     setSyncStatus('online', '실시간 동기화 중');
-    attachRealtimeListener();
+    attachRealtimeListeners();
   } catch (e) {
     setSyncStatus('offline', '오프라인 모드 (이 기기에만 저장)');
   }
