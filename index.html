@@ -263,7 +263,12 @@
     border: 1px solid #eadfc4;
     border-radius: 12px;
     padding: 12px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
   }
+  .check-row:hover { background: rgba(255,255,255,0.9); }
+  .check-row:active { transform: scale(0.98); }
   .check-row .label {
     font-weight: 700;
     color: #4a3a2a;
@@ -717,7 +722,7 @@
       <div class="cover-title">📔 이번 주 신앙점검표</div>
       <div class="cover-week" id="coverWeekLabel"></div>
       <div class="check-table" id="checkTable"></div>
-      <p class="cover-hint">아래 인덱스를 눌러 이번 주 내용을 작성해보세요</p>
+      <p class="cover-hint">코람데오의 마음으로 항목을 눌러 O/X를 표시하고,<br>아래 인덱스를 눌러 이번 주 내용을 작성해보세요</p>
     </div>
 
     <!-- 인덱스 탭 -->
@@ -842,10 +847,13 @@ CATEGORIES.forEach(cat => {
   entryData[cat.key] = {};
   groupIds.forEach(id => {
     entryData[cat.key][id] = cat.kind === 'bible'
-      ? { book: '', note: '', updatedAt: '', weekKey: '' }
-      : { text: '', updatedAt: '', weekKey: '' };
+      ? { book: '', note: '', updatedAt: '' }
+      : { text: '', updatedAt: '' };
   });
 });
+
+// 사랑방별 주간 점검표 체크 상태 (본인이 직접 O/X 표시, 내용과는 별개로 저장)
+let checkData = {};
 
 let currentCat = CATEGORIES[0].key;
 let currentRoomId = null;
@@ -893,12 +901,26 @@ function weekLabel() {
   const fmt = d => (d.getMonth() + 1) + '/' + d.getDate();
   return fmt(s) + '(일) ~ ' + fmt(e) + '(토) 주간';
 }
-function isFilledThisWeek(catKey) {
-  if (!currentRoomId) return false;
-  const d = entryData[catKey][currentRoomId];
-  if (!d) return false;
-  const filled = catConfig(catKey).kind === 'bible' ? !!(d.book || d.note) : !!d.text;
-  return filled && d.weekKey === currentWeekKey();
+// 저장된 체크가 이전 주 기록이면(weekKey 불일치) 이번 주는 전부 미체크(X)로 취급
+function getEffectiveChecks(id) {
+  const d = checkData[id];
+  if (!d || d.weekKey !== currentWeekKey()) {
+    const blank = { weekKey: currentWeekKey() };
+    CATEGORIES.forEach(cat => { blank[cat.key] = false; });
+    return blank;
+  }
+  return d;
+}
+
+function toggleCheck(catKey) {
+  if (!currentRoomId) return;
+  const eff = Object.assign({}, getEffectiveChecks(currentRoomId));
+  eff[catKey] = !eff[catKey];
+  checkData[currentRoomId] = eff;
+  renderCheckTable();
+  if (db) {
+    db.collection('comm2_checks').doc(currentRoomId).set(eff).catch(() => {});
+  }
 }
 
 /* ---------- 사랑방 선택 ---------- */
@@ -940,12 +962,15 @@ function renderCheckTable() {
   document.getElementById('coverWeekLabel').textContent = weekLabel();
   const box = document.getElementById('checkTable');
   box.innerHTML = '';
+  if (!currentRoomId) return;
+  const eff = getEffectiveChecks(currentRoomId);
   CATEGORIES.forEach(cat => {
-    const ok = isFilledThisWeek(cat.key);
+    const ok = !!eff[cat.key];
     const row = document.createElement('div');
     row.className = 'check-row';
     row.innerHTML = '<span class="label">' + escapeHtml(cat.label) + '</span>' +
       '<span class="check-badge ' + (ok ? 'o' : 'x') + '">' + (ok ? 'O' : 'X') + '</span>';
+    row.onclick = () => toggleCheck(cat.key);
     box.appendChild(row);
   });
 }
@@ -1038,10 +1063,9 @@ function nowStr() {
 async function saveEntry(id, payload, saveMsg, updatedLabel) {
   const cat = catConfig(currentCat);
   const dateStr = nowStr();
-  const wk = currentWeekKey();
   const data = cat.kind === 'bible'
-    ? { book: (payload.book || '').trim(), note: (payload.note || '').trim(), updatedAt: dateStr, weekKey: wk }
-    : { text: (payload.text || '').trim(), updatedAt: dateStr, weekKey: wk };
+    ? { book: (payload.book || '').trim(), note: (payload.note || '').trim(), updatedAt: dateStr }
+    : { text: (payload.text || '').trim(), updatedAt: dateStr };
 
   entryData[currentCat][id] = data;
   updatedLabel.textContent = '마지막 저장: ' + dateStr;
@@ -1084,33 +1108,29 @@ function attachRealtimeListeners() {
       db.collection(cat.collection).doc(id).onSnapshot(doc => {
         if (doc.exists) {
           const d = doc.data();
-          const isStale = d.weekKey && d.weekKey !== currentWeekKey();
+          entryData[cat.key][id] = cat.kind === 'bible'
+            ? { book: d.book || '', note: d.note || '', updatedAt: d.updatedAt || '' }
+            : { text: d.text || '', updatedAt: d.updatedAt || '' };
 
-          if (isStale) {
-            // 지난 주 기록: 화면 캡쳐 등으로 보관 후 자동 삭제 (서버에는 보관하지 않음)
-            const emptyData = cat.kind === 'bible'
-              ? { book: '', note: '', updatedAt: '', weekKey: '' }
-              : { text: '', updatedAt: '', weekKey: '' };
-            entryData[cat.key][id] = emptyData;
-            db.collection(cat.collection).doc(id).set(emptyData).catch(() => {});
-          } else {
-            entryData[cat.key][id] = cat.kind === 'bible'
-              ? { book: d.book || '', note: d.note || '', updatedAt: d.updatedAt || '', weekKey: d.weekKey || '' }
-              : { text: d.text || '', updatedAt: d.updatedAt || '', weekKey: d.weekKey || '' };
-          }
-
-          if (id === currentRoomId) {
-            if (!diaryCoverEl.classList.contains('hidden')) renderCheckTable();
-            if (cat.key === currentCat) {
-              const panel = panelsEl.querySelector('.panel[data-panel="' + id + '"]');
-              if (panel) refreshPanelFromData(panel, id);
-            }
+          if (id === currentRoomId && cat.key === currentCat) {
+            const panel = panelsEl.querySelector('.panel[data-panel="' + id + '"]');
+            if (panel) refreshPanelFromData(panel, id);
           }
           if (allView.classList.contains('active')) renderAll();
         }
       }, err => {
         setSyncStatus('offline', '동기화 오류');
       });
+    });
+  });
+
+  // 사랑방별 주간 점검표(체크) 실시간 동기화
+  groupIds.forEach(id => {
+    db.collection('comm2_checks').doc(id).onSnapshot(doc => {
+      checkData[id] = doc.exists ? doc.data() : null;
+      if (id === currentRoomId && !diaryCoverEl.classList.contains('hidden')) renderCheckTable();
+    }, err => {
+      setSyncStatus('offline', '동기화 오류');
     });
   });
 
