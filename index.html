@@ -1075,6 +1075,7 @@ function showCover() {
   diaryCoverEl.classList.remove('hidden');
   panelsEl.classList.add('hidden');
   document.getElementById('backToCoverBtn').classList.add('hidden');
+  document.getElementById('viewAllBtn').classList.remove('hidden');
   document.querySelectorAll('.cat-tab-btn').forEach(b => b.classList.remove('active'));
   // 표지로 돌아올 때도 페이지가 넘어가는 효과를 다시 재생
   diaryCoverEl.classList.remove('cover-page');
@@ -1171,6 +1172,8 @@ function showCategoryPage(key) {
   diaryCoverEl.classList.add('hidden');
   panelsEl.classList.remove('hidden');
   document.getElementById('backToCoverBtn').classList.remove('hidden');
+  // 인덱스 기록 페이지에서는 다른 사랑방 열람(전체보기)을 잠시 막아 본인 기록만 보이도록 함
+  document.getElementById('viewAllBtn').classList.add('hidden');
   document.querySelectorAll('.cat-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === key));
   renderTabsAndPanels();
   switchTab(currentRoomId);
